@@ -11,6 +11,7 @@ type TemplateConfig = {
   font: string;
   nameSize: number;
   nameWeight: number;
+  nameTracking: string;
   headlineSize: number;
   headlineTracking: string;
   contactSize: number;
@@ -18,10 +19,16 @@ type TemplateConfig = {
   bodySize: number;
   headingColor: string;
   headingRule: string;
+  headingBar: boolean;
   accent: string;
   nameAlign: "left" | "center";
   headerRule: string;
+  headerRuleWidth: number;
   nameserif: boolean;
+  metaItalic: boolean;
+  padComfortable: number;
+  padCompact: number;
+  densityTrim: number;
 };
 
 const templateConfig: Record<Design["template"], TemplateConfig> = {
@@ -29,6 +36,7 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     font: SERIF,
     nameSize: 38,
     nameWeight: 400,
+    nameTracking: "-0.005em",
     headlineSize: 10.5,
     headlineTracking: "0.2em",
     contactSize: 10.8,
@@ -36,15 +44,22 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     bodySize: 12.6,
     headingColor: "#1b2a23",
     headingRule: "#c9d1c9",
+    headingBar: false,
     accent: "#355c46",
     nameAlign: "center",
     headerRule: "#1b2a23",
+    headerRuleWidth: 1.5,
     nameserif: true,
+    metaItalic: true,
+    padComfortable: 52,
+    padCompact: 42,
+    densityTrim: 0.8,
   },
   modern: {
     font: SANS,
     nameSize: 34,
     nameWeight: 700,
+    nameTracking: "-0.02em",
     headlineSize: 10.5,
     headlineTracking: "0.18em",
     contactSize: 10.5,
@@ -52,15 +67,22 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     bodySize: 12.4,
     headingColor: "#1b4b39",
     headingRule: "#dde4dc",
+    headingBar: false,
     accent: "#1b4b39",
     nameAlign: "left",
     headerRule: "#1b4b39",
+    headerRuleWidth: 2,
     nameserif: false,
+    metaItalic: false,
+    padComfortable: 52,
+    padCompact: 42,
+    densityTrim: 0.3,
   },
   compact: {
     font: SANS,
     nameSize: 29,
     nameWeight: 700,
+    nameTracking: "-0.02em",
     headlineSize: 9.5,
     headlineTracking: "0.16em",
     contactSize: 9.6,
@@ -68,10 +90,85 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     bodySize: 11.8,
     headingColor: "#22352a",
     headingRule: "#e0e5df",
+    headingBar: false,
     accent: "#355944",
     nameAlign: "left",
     headerRule: "#b9c4bb",
+    headerRuleWidth: 2,
     nameserif: false,
+    metaItalic: false,
+    padComfortable: 44,
+    padCompact: 40,
+    densityTrim: 0.8,
+  },
+  minimal: {
+    font: SANS,
+    nameSize: 32,
+    nameWeight: 400,
+    nameTracking: "0.01em",
+    headlineSize: 10,
+    headlineTracking: "0.22em",
+    contactSize: 10,
+    sectionSize: 9.8,
+    bodySize: 12.8,
+    headingColor: "#3a3f3a",
+    headingRule: "#e6e9e4",
+    headingBar: false,
+    accent: "#6b7280",
+    nameAlign: "left",
+    headerRule: "#d8dcd5",
+    headerRuleWidth: 1,
+    nameserif: false,
+    metaItalic: false,
+    padComfortable: 56,
+    padCompact: 46,
+    densityTrim: 0.8,
+  },
+  executive: {
+    font: SERIF,
+    nameSize: 36,
+    nameWeight: 700,
+    nameTracking: "-0.01em",
+    headlineSize: 10.5,
+    headlineTracking: "0.2em",
+    contactSize: 10.5,
+    sectionSize: 10.6,
+    bodySize: 12.4,
+    headingColor: "#111827",
+    headingRule: "#c3c9d1",
+    headingBar: false,
+    accent: "#111827",
+    nameAlign: "left",
+    headerRule: "#111827",
+    headerRuleWidth: 2.5,
+    nameserif: true,
+    metaItalic: false,
+    padComfortable: 54,
+    padCompact: 44,
+    densityTrim: 0.6,
+  },
+  technical: {
+    font: SANS,
+    nameSize: 33,
+    nameWeight: 700,
+    nameTracking: "-0.02em",
+    headlineSize: 10,
+    headlineTracking: "0.18em",
+    contactSize: 10.2,
+    sectionSize: 10,
+    bodySize: 12.2,
+    headingColor: "#0f4c5c",
+    headingRule: "#d3e2e6",
+    headingBar: true,
+    accent: "#0f4c5c",
+    nameAlign: "left",
+    headerRule: "#0f4c5c",
+    headerRuleWidth: 2,
+    nameserif: false,
+    metaItalic: false,
+    padComfortable: 50,
+    padCompact: 42,
+    densityTrim: 0.5,
   },
 };
 
@@ -353,7 +450,7 @@ export function ResumeSheet({
                         gap: 12,
                         fontSize: body - 0.9,
                         marginTop: 1,
-                        fontStyle: design.template === "classic" ? "italic" : "normal",
+                        fontStyle: config.metaItalic ? "italic" : "normal",
                       }}
                     >
                       <span>{entry.school.trim()}</span>
