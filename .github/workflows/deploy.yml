@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -33,6 +33,37 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+  # This repo's Pages source is the legacy "branch main, path /", so the built
+  # single-file index.html is committed to the repo root of main for Pages to serve.
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: site/dist
+      - name: Publish built index.html to main root
+        working-directory: site
+        run: |
+          cp dist/index.html index.html
+          rm -rf dist
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Publish built site to Pages root [skip ci]" || echo "no changes to publish"
+          git push origin main
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -40,6 +71,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download Pages artifact
+        uses: actions/download-pages-artifact@v3
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
