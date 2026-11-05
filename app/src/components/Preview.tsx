@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Check, Eye, FileDown, FileText, Printer } from "lucide-react";
-import type { Design, Resume } from "@/types";
-import { PAPER_SIZES } from "@/lib/ats";
+import type { Design, Resume, SectionKey } from "@/types";
+import { ACCENTS, PAPER_SIZES } from "@/lib/ats";
 import { cn } from "@/utils/cn";
 
 const SERIF = "Georgia, 'Times New Roman', Times, serif";
@@ -20,10 +21,13 @@ type TemplateConfig = {
   headingColor: string;
   headingRule: string;
   headingBar: boolean;
+  headingUppercase: boolean;
+  headingBold: boolean;
   accent: string;
   nameAlign: "left" | "center";
   headerRule: string;
   headerRuleWidth: number;
+  headerFollowsAccent: boolean;
   nameserif: boolean;
   metaItalic: boolean;
   padComfortable: number;
@@ -45,10 +49,13 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     headingColor: "#1b2a23",
     headingRule: "#c9d1c9",
     headingBar: false,
+    headingUppercase: false,
+    headingBold: false,
     accent: "#355c46",
     nameAlign: "center",
     headerRule: "#1b2a23",
     headerRuleWidth: 1.5,
+    headerFollowsAccent: false,
     nameserif: true,
     metaItalic: true,
     padComfortable: 52,
@@ -68,10 +75,13 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     headingColor: "#1b4b39",
     headingRule: "#dde4dc",
     headingBar: false,
+    headingUppercase: false,
+    headingBold: false,
     accent: "#1b4b39",
     nameAlign: "left",
     headerRule: "#1b4b39",
     headerRuleWidth: 2,
+    headerFollowsAccent: true,
     nameserif: false,
     metaItalic: false,
     padComfortable: 52,
@@ -91,10 +101,13 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     headingColor: "#22352a",
     headingRule: "#e0e5df",
     headingBar: false,
+    headingUppercase: false,
+    headingBold: false,
     accent: "#355944",
     nameAlign: "left",
     headerRule: "#b9c4bb",
     headerRuleWidth: 2,
+    headerFollowsAccent: false,
     nameserif: false,
     metaItalic: false,
     padComfortable: 44,
@@ -114,10 +127,13 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     headingColor: "#3a3f3a",
     headingRule: "#e6e9e4",
     headingBar: false,
+    headingUppercase: false,
+    headingBold: false,
     accent: "#6b7280",
     nameAlign: "left",
     headerRule: "#d8dcd5",
     headerRuleWidth: 1,
+    headerFollowsAccent: false,
     nameserif: false,
     metaItalic: false,
     padComfortable: 56,
@@ -137,10 +153,13 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     headingColor: "#111827",
     headingRule: "#c3c9d1",
     headingBar: false,
+    headingUppercase: false,
+    headingBold: false,
     accent: "#111827",
     nameAlign: "left",
     headerRule: "#111827",
     headerRuleWidth: 2.5,
+    headerFollowsAccent: false,
     nameserif: true,
     metaItalic: false,
     padComfortable: 54,
@@ -160,15 +179,44 @@ const templateConfig: Record<Design["template"], TemplateConfig> = {
     headingColor: "#0f4c5c",
     headingRule: "#d3e2e6",
     headingBar: true,
+    headingUppercase: false,
+    headingBold: false,
     accent: "#0f4c5c",
     nameAlign: "left",
     headerRule: "#0f4c5c",
     headerRuleWidth: 2,
+    headerFollowsAccent: true,
     nameserif: false,
     metaItalic: false,
     padComfortable: 50,
     padCompact: 42,
     densityTrim: 0.5,
+  },
+  formal: {
+    font: SERIF,
+    nameSize: 40,
+    nameWeight: 700,
+    nameTracking: "0.01em",
+    headlineSize: 10.5,
+    headlineTracking: "0.18em",
+    contactSize: 10.5,
+    sectionSize: 11,
+    bodySize: 12.2,
+    headingColor: "#111111",
+    headingRule: "#111111",
+    headingBar: false,
+    headingUppercase: true,
+    headingBold: true,
+    accent: "#111111",
+    nameAlign: "center",
+    headerRule: "#111111",
+    headerRuleWidth: 1.5,
+    headerFollowsAccent: false,
+    nameserif: true,
+    metaItalic: true,
+    padComfortable: 50,
+    padCompact: 42,
+    densityTrim: 0.6,
   },
 };
 
@@ -176,10 +224,12 @@ function SectionHeading({
   children,
   config,
   density,
+  accentHex,
 }: {
   children: string;
   config: TemplateConfig;
   density: Design["density"];
+  accentHex: string;
 }) {
   return (
     <h2
@@ -187,9 +237,13 @@ function SectionHeading({
       style={{
         fontFamily: config.font,
         fontSize: config.sectionSize,
-        letterSpacing: "0.15em",
+        fontWeight: config.headingBold ? 700 : undefined,
+        textTransform: config.headingUppercase ? "uppercase" : undefined,
+        letterSpacing: config.headingUppercase ? "0.08em" : "0.15em",
         color: config.headingColor,
         borderBottom: `1px solid ${config.headingRule}`,
+        borderLeft: config.headingBar ? `3px solid ${accentHex}` : undefined,
+        paddingLeft: config.headingBar ? 7 : undefined,
         paddingBottom: density === "compact" ? 2 : 3,
         marginBottom: density === "compact" ? 5 : 7,
       }}
@@ -211,8 +265,9 @@ export function ResumeSheet({
   const paper = PAPER_SIZES[design.paper];
   const config = templateConfig[design.template];
   const compact = design.density === "compact";
-  const pad = compact ? (design.template === "compact" ? 40 : 42) : design.template === "compact" ? 44 : 52;
-  const densityTrim = compact ? (design.template === "modern" ? 0.3 : 0.8) : 0;
+  const accentHex = ACCENTS[design.accent]?.hex ?? config.accent;
+  const pad = compact ? config.padCompact : config.padComfortable;
+  const densityTrim = compact ? config.densityTrim : 0;
   const body = config.bodySize - densityTrim;
   const sectionGap = compact ? 10 : 14;
   const entryGap = compact ? 8 : 11;
@@ -223,6 +278,15 @@ export function ResumeSheet({
     .filter(Boolean);
 
   const visible = design.visible;
+  const order: SectionKey[] = design.sectionOrder?.length
+    ? design.sectionOrder
+    : ["summary", "skills", "experience", "education", "certifications", "awards"];
+
+  const heading = (label: string) => (
+    <SectionHeading config={config} density={design.density} accentHex={accentHex}>
+      {label}
+    </SectionHeading>
+  );
 
   const renderContact = () =>
     contactLine.length > 0 ? (
@@ -250,6 +314,197 @@ export function ResumeSheet({
       </p>
     ) : null;
 
+  const sections: Record<SectionKey, ReactNode> = {
+    summary:
+      visible.summary && resume.summary.trim() ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Professional Summary")}
+          <p className="rs-paragraph" style={{ fontSize: body }}>
+            {resume.summary.trim()}
+          </p>
+        </section>
+      ) : null,
+    skills:
+      visible.skills && resume.skills.length > 0 ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Core Skills")}
+          <p className="rs-skill-list" style={{ fontSize: body - 0.2 }}>
+            {resume.skills.join(", ")}
+          </p>
+        </section>
+      ) : null,
+    experience:
+      visible.experience &&
+      resume.experience.some((job) => job.role.trim() || job.company.trim()) ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Work Experience")}
+          <div>
+            {resume.experience.map((job, index) => {
+              if (!job.role.trim() && !job.company.trim()) return null;
+              const date = [job.start.trim(), job.end.trim()].filter(Boolean).join(" – ");
+              const bullets = job.bullets.map((bullet) => bullet.trim()).filter(Boolean);
+              return (
+                <div
+                  key={job.id}
+                  style={{ marginTop: index === 0 ? 0 : entryGap }}
+                  className="break-inside-avoid"
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      justifyContent: "space-between",
+                      gap: 12,
+                    }}
+                  >
+                    <h3 className="rs-role" style={{ fontSize: body + 0.9, margin: 0 }}>
+                      {job.role.trim() || "Role"}
+                    </h3>
+                    {date && (
+                      <span className="rs-date" style={{ fontSize: body - 1, whiteSpace: "nowrap" }}>
+                        {date}
+                      </span>
+                    )}
+                  </div>
+                  {(job.company.trim() || job.location.trim()) && (
+                    <div
+                      className="rs-meta"
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        fontSize: body - 0.9,
+                        marginTop: 1,
+                        fontStyle: config.metaItalic ? "italic" : "normal",
+                      }}
+                    >
+                      <span className="rs-company">{job.company.trim()}</span>
+                      <span style={{ whiteSpace: "nowrap" }}>{job.location.trim()}</span>
+                    </div>
+                  )}
+                  {bullets.length > 0 && (
+                    <ul
+                      className="rs-bullets"
+                      style={{ marginTop: compact ? 3 : 4, fontSize: body - 0.4 }}
+                    >
+                      {bullets.map((bullet, bulletIndex) => (
+                        <li key={bulletIndex} style={{ marginTop: bulletIndex === 0 ? 0 : bulletGap }}>
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null,
+    education:
+      visible.education &&
+      resume.education.some((entry) => entry.degree.trim() || entry.school.trim()) ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Education")}
+          {resume.education.map((entry, index) => {
+            if (!entry.degree.trim() && !entry.school.trim()) return null;
+            return (
+              <div key={entry.id} style={{ marginTop: index === 0 ? 0 : entryGap - 2 }}>
+                <div className="break-inside-avoid">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      justifyContent: "space-between",
+                      gap: 12,
+                    }}
+                  >
+                    <h3 className="rs-role" style={{ fontSize: body + 0.6, margin: 0 }}>
+                      {entry.degree.trim() || "Degree"}
+                    </h3>
+                    {entry.year.trim() && (
+                      <span className="rs-date" style={{ fontSize: body - 1 }}>
+                        {entry.year.trim()}
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    className="rs-meta"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      fontSize: body - 0.9,
+                      marginTop: 1,
+                      fontStyle: config.metaItalic ? "italic" : "normal",
+                    }}
+                  >
+                    <span>{entry.school.trim()}</span>
+                    <span style={{ whiteSpace: "nowrap" }}>{entry.location.trim()}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      ) : null,
+    certifications:
+      visible.certifications &&
+      resume.certifications.some((entry) => entry.name.trim()) ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Certifications")}
+          {resume.certifications.map((entry, index) =>
+            entry.name.trim() ? (
+              <div
+                key={entry.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  fontSize: body - 0.2,
+                  marginTop: index === 0 ? 0 : compact ? 1 : 2,
+                  color: "#2b3a31",
+                }}
+              >
+                <span>
+                  <span className="rs-company">{entry.name.trim()}</span>
+                  {entry.issuer.trim() && (
+                    <span style={{ color: "#5a6a60" }}> — {entry.issuer.trim()}</span>
+                  )}
+                </span>
+                {entry.year.trim() && (
+                  <span className="rs-date" style={{ fontSize: body - 1 }}>
+                    {entry.year.trim()}
+                  </span>
+                )}
+              </div>
+            ) : null,
+          )}
+        </section>
+      ) : null,
+    awards:
+      visible.awards &&
+      (resume.awards ?? []).some((entry) => entry.title.trim()) ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Awards")}
+          <ul className="rs-bullets" style={{ marginTop: 0, fontSize: body - 0.2 }}>
+            {(resume.awards ?? []).map((entry, index) =>
+              entry.title.trim() ? (
+                <li key={entry.id} style={{ marginTop: index === 0 ? 0 : bulletGap }}>
+                  <span className="rs-company">{entry.title.trim()}</span>
+                  {entry.issuer.trim() && (
+                    <span style={{ color: "#5a6a60" }}>, {entry.issuer.trim()}</span>
+                  )}
+                  {entry.year.trim() && (
+                    <span style={{ color: "#5a6a60" }}> ({entry.year.trim()})</span>
+                  )}
+                </li>
+              ) : null,
+            )}
+          </ul>
+        </section>
+      ) : null,
+  };
+
   return (
     <div
       id={id}
@@ -265,7 +520,7 @@ export function ResumeSheet({
     >
       <header
         style={{
-          borderBottom: design.template === "classic" ? "1.5px solid #1b2a23" : `2px solid ${config.headerRule}`,
+          borderBottom: `${config.headerRuleWidth}px solid ${config.headerFollowsAccent ? accentHex : config.headerRule}`,
           paddingBottom: compact ? 8 : 11,
           textAlign: config.nameAlign,
         }}
@@ -276,7 +531,7 @@ export function ResumeSheet({
             fontFamily: config.nameserif ? SERIF : SANS,
             fontSize: config.nameSize,
             fontWeight: config.nameWeight,
-            letterSpacing: design.template === "classic" ? "-0.005em" : "-0.02em",
+            letterSpacing: config.nameTracking,
             textAlign: config.nameAlign,
           }}
         >
@@ -288,7 +543,7 @@ export function ResumeSheet({
             style={{
               fontSize: config.headlineSize,
               letterSpacing: config.headlineTracking,
-              color: config.accent,
+              color: accentHex,
               marginTop: compact ? 4 : 6,
             }}
           >
@@ -323,181 +578,9 @@ export function ResumeSheet({
           </div>
         )}
 
-      {visible.summary && resume.summary.trim() && (
-        <section style={{ marginTop: sectionGap }}>
-          <SectionHeading config={config} density={design.density}>
-            Professional Summary
-          </SectionHeading>
-          <p className="rs-paragraph" style={{ fontSize: body }}>
-            {resume.summary.trim()}
-          </p>
-        </section>
-      )}
-
-      {visible.skills && resume.skills.length > 0 && (
-        <section style={{ marginTop: sectionGap }}>
-          <SectionHeading config={config} density={design.density}>
-            Core Skills
-          </SectionHeading>
-          <p className="rs-skill-list" style={{ fontSize: body - 0.2 }}>
-            {resume.skills.join(", ")}
-          </p>
-        </section>
-      )}
-
-      {visible.experience &&
-        resume.experience.some((job) => job.role.trim() || job.company.trim()) && (
-          <section style={{ marginTop: sectionGap }}>
-            <SectionHeading config={config} density={design.density}>
-              Work Experience
-            </SectionHeading>
-            <div>
-              {resume.experience.map((job, index) => {
-                if (!job.role.trim() && !job.company.trim()) return null;
-                const date = [job.start.trim(), job.end.trim()].filter(Boolean).join(" – ");
-                const bullets = job.bullets.map((bullet) => bullet.trim()).filter(Boolean);
-                return (
-                  <div
-                    key={job.id}
-                    style={{ marginTop: index === 0 ? 0 : entryGap }}
-                    className="break-inside-avoid"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        justifyContent: "space-between",
-                        gap: 12,
-                      }}
-                    >
-                      <h3 className="rs-role" style={{ fontSize: body + 0.9, margin: 0 }}>
-                        {job.role.trim() || "Role"}
-                      </h3>
-                      {date && (
-                        <span className="rs-date" style={{ fontSize: body - 1, whiteSpace: "nowrap" }}>
-                          {date}
-                        </span>
-                      )}
-                    </div>
-                    {(job.company.trim() || job.location.trim()) && (
-                      <div
-                        className="rs-meta"
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 12,
-                          fontSize: body - 0.9,
-                          marginTop: 1,
-                          fontStyle: design.template === "classic" ? "italic" : "normal",
-                        }}
-                      >
-                        <span className="rs-company">{job.company.trim()}</span>
-                        <span style={{ whiteSpace: "nowrap" }}>{job.location.trim()}</span>
-                      </div>
-                    )}
-                    {bullets.length > 0 && (
-                      <ul
-                        className="rs-bullets"
-                        style={{ marginTop: compact ? 3 : 4, fontSize: body - 0.4 }}
-                      >
-                        {bullets.map((bullet, bulletIndex) => (
-                          <li key={bulletIndex} style={{ marginTop: bulletIndex === 0 ? 0 : bulletGap }}>
-                            {bullet}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-      {visible.education &&
-        resume.education.some((entry) => entry.degree.trim() || entry.school.trim()) && (
-          <section style={{ marginTop: sectionGap }}>
-            <SectionHeading config={config} density={design.density}>
-              Education
-            </SectionHeading>
-            {resume.education.map((entry, index) => {
-              if (!entry.degree.trim() && !entry.school.trim()) return null;
-              return (
-                <div key={entry.id} style={{ marginTop: index === 0 ? 0 : entryGap - 2 }}>
-                  <div className="break-inside-avoid">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        justifyContent: "space-between",
-                        gap: 12,
-                      }}
-                    >
-                      <h3 className="rs-role" style={{ fontSize: body + 0.6, margin: 0 }}>
-                        {entry.degree.trim() || "Degree"}
-                      </h3>
-                      {entry.year.trim() && (
-                        <span className="rs-date" style={{ fontSize: body - 1 }}>
-                          {entry.year.trim()}
-                        </span>
-                      )}
-                    </div>
-                    <div
-                      className="rs-meta"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        fontSize: body - 0.9,
-                        marginTop: 1,
-                        fontStyle: config.metaItalic ? "italic" : "normal",
-                      }}
-                    >
-                      <span>{entry.school.trim()}</span>
-                      <span style={{ whiteSpace: "nowrap" }}>{entry.location.trim()}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </section>
-        )}
-
-      {visible.certifications &&
-        resume.certifications.some((entry) => entry.name.trim()) && (
-          <section style={{ marginTop: sectionGap }}>
-            <SectionHeading config={config} density={design.density}>
-              Certifications
-            </SectionHeading>
-            {resume.certifications.map((entry, index) =>
-              entry.name.trim() ? (
-                <div
-                  key={entry.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    fontSize: body - 0.2,
-                    marginTop: index === 0 ? 0 : compact ? 1 : 2,
-                    color: "#2b3a31",
-                  }}
-                >
-                  <span>
-                    <span className="rs-company">{entry.name.trim()}</span>
-                    {entry.issuer.trim() && (
-                      <span style={{ color: "#5a6a60" }}> — {entry.issuer.trim()}</span>
-                    )}
-                  </span>
-                  {entry.year.trim() && (
-                    <span className="rs-date" style={{ fontSize: body - 1 }}>
-                      {entry.year.trim()}
-                    </span>
-                  )}
-                </div>
-              ) : null,
-            )}
-          </section>
-        )}
+      {order.map((key) => (
+        <div key={key}>{sections[key]}</div>
+      ))}
     </div>
   );
 }

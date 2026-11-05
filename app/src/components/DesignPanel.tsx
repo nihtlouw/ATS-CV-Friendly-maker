@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
-import { AlignJustify, Check, FileText, Rows3, ShieldCheck } from "lucide-react";
+import { AlignJustify, ArrowDown, ArrowUp, Check, FileText, Rows3, ShieldCheck } from "lucide-react";
 import type { Design, SectionKey, TemplateId } from "@/types";
+import { ACCENTS } from "@/lib/ats";
 import { Segmented, Switch } from "@/components/ui";
 import { cn } from "@/utils/cn";
 
@@ -16,6 +17,7 @@ const sectionOptions: { key: SectionKey; label: string; description: string }[] 
   { key: "experience", label: "Work experience", description: "Roles, dates and achievements" },
   { key: "education", label: "Education", description: "Credential, school and year" },
   { key: "certifications", label: "Certifications", description: "Optional credentials" },
+  { key: "awards", label: "Awards & honors", description: "Competitions and scholarships" },
 ];
 
 function MiniSheet({ template, active }: { template: TemplateId; active: boolean }) {
@@ -217,6 +219,83 @@ export function DesignPanel({
               }
             />
           ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="field-label !mb-1.5">Accent color</p>
+        <div className="flex flex-wrap gap-1.5">
+          {(Object.keys(ACCENTS) as (keyof typeof ACCENTS)[]).map((key) => {
+            const active = design.accent === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={active}
+                title={ACCENTS[key].label}
+                onClick={() => setDesign((prev) => ({ ...prev, accent: key }))}
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest",
+                  active ? "border-ink/40 ring-2 ring-ink/15" : "border-line hover:scale-105",
+                )}
+                style={{ backgroundColor: ACCENTS[key].hex }}
+              >
+                {active && <Check className="h-3 w-3 text-white" strokeWidth={3.5} />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <p className="field-label !mb-1.5">Section order</p>
+        <div className="divide-y divide-line-soft rounded-xl border border-line">
+          {design.sectionOrder.map((key, index) => {
+            const option = sectionOptions.find((item) => item.key === key);
+            if (!option) return null;
+            return (
+              <div key={key} className="flex items-center gap-2 px-2.5 py-1.5">
+                <span className="min-w-0 flex-1 truncate text-[11px] text-ink-soft">
+                  {option.label}
+                  {!design.visible[key] && (
+                    <span className="ml-1.5 font-mono text-[8px] uppercase tracking-wide text-[#9aa49b]">
+                      hidden
+                    </span>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  className="icon-btn !h-6 !w-6"
+                  aria-label={`Move ${option.label} up`}
+                  disabled={index === 0}
+                  onClick={() =>
+                    setDesign((prev) => {
+                      const next = [...prev.sectionOrder];
+                      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                      return { ...prev, sectionOrder: next };
+                    })
+                  }
+                >
+                  <ArrowUp className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  className="icon-btn !h-6 !w-6"
+                  aria-label={`Move ${option.label} down`}
+                  disabled={index === design.sectionOrder.length - 1}
+                  onClick={() =>
+                    setDesign((prev) => {
+                      const next = [...prev.sectionOrder];
+                      [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                      return { ...prev, sectionOrder: next };
+                    })
+                  }
+                >
+                  <ArrowDown className="h-3 w-3" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 

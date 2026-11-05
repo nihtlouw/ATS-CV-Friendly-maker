@@ -7,7 +7,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react";
-import type { Certification, Education, Experience, Resume, SectionKey } from "@/types";
+import type { Award, Certification, Education, Experience, Resume, SectionKey } from "@/types";
 import { countSentences, suggestionPool, uid, wordCount } from "@/lib/ats";
 import { Accordion, Chip, Field, TextArea } from "@/components/ui";
 import { cn } from "@/utils/cn";
@@ -156,6 +156,19 @@ export function ContentPanel({
         entry.id === id ? { ...entry, ...patch } : entry,
       ),
     });
+
+  const addAward = () =>
+    patchResume({
+      awards: [...(resume.awards ?? []), { id: uid(), title: "", issuer: "", year: "" }],
+    });
+
+  const updateAward = (id: string, patch: Partial<Award>) =>
+    patchResume({
+      awards: (resume.awards ?? []).map((entry) => (entry.id === id ? { ...entry, ...patch } : entry)),
+    });
+
+  const removeAward = (id: string) =>
+    patchResume({ awards: (resume.awards ?? []).filter((entry) => entry.id !== id) });
 
   const bulletCount = resume.experience.reduce(
     (total, job) => total + job.bullets.filter((bullet) => bullet.trim()).length,
@@ -610,6 +623,65 @@ export function ContentPanel({
           <Tip>
             Include in-progress credentials with a target year, for example “PMP — expected 2026”.
             Skip certificates that do not relate to the role.
+          </Tip>
+        </div>
+      </Accordion>
+
+      <Accordion
+        number="07"
+        title="Awards & honors"
+        meta={
+          (resume.awards ?? []).length
+            ? `${(resume.awards ?? []).length} ${(resume.awards ?? []).length === 1 ? "award" : "awards"}`
+            : "Optional — competitions, scholarships, honors"
+        }
+        complete={(resume.awards ?? []).some((entry) => entry.title.trim())}
+        open={open === "awards"}
+        onToggle={() => setOpen("awards")}
+      >
+        <div className="space-y-2.5">
+          {(resume.awards ?? []).map((entry, index) => (
+            <div key={entry.id} className="rounded-xl border border-line bg-cream/60 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="font-mono text-[9px] uppercase tracking-wide text-[#9aa49b]">
+                  Award {String(index + 1).padStart(2, "0")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeAward(entry.id)}
+                  className="icon-btn !h-6 !w-6 hover:!bg-[#f6e6df] hover:!text-[#a64d31]"
+                  aria-label="Remove award"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <Field
+                  label="Award or honor"
+                  value={entry.title}
+                  onChange={(value) => updateAward(entry.id, { title: value })}
+                  placeholder="1st Place, National Debate Competition"
+                  className="sm:col-span-2"
+                />
+                <Field
+                  label="Issuer"
+                  value={entry.issuer}
+                  onChange={(value) => updateAward(entry.id, { issuer: value })}
+                  placeholder="DRP Republic of Indonesia"
+                />
+                <Field
+                  label="Year"
+                  value={entry.year}
+                  onChange={(value) => updateAward(entry.id, { year: value })}
+                  placeholder="2023"
+                />
+              </div>
+            </div>
+          ))}
+          <EmptyAdd label="Add award" onClick={addAward} />
+          <Tip>
+            Only list awards that strengthen the target role. Always keep the exact placing and issuer
+            — recruiters may verify them.
           </Tip>
         </div>
       </Accordion>
