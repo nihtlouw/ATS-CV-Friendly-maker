@@ -37,7 +37,13 @@ export type Resume = {
   certifications: Certification[];
 };
 
-export type TemplateId = "classic" | "modern" | "compact";
+export type TemplateId =
+  | "classic"
+  | "modern"
+  | "compact"
+  | "minimal"
+  | "executive"
+  | "technical";
 export type PaperId = "letter" | "a4";
 export type DensityId = "comfortable" | "compact";
 

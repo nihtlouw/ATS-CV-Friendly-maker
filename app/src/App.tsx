@@ -76,7 +76,14 @@ function loadState(): AppState {
         : [],
     };
 
-    const validTemplates = ["classic", "modern", "compact"] as const;
+    const validTemplates = [
+      "classic",
+      "modern",
+      "compact",
+      "minimal",
+      "executive",
+      "technical",
+    ] as const;
     const template = validTemplates.includes(designSource.template)
       ? designSource.template
       : "modern";
