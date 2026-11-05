@@ -23,6 +23,13 @@ export type Certification = {
   year: string;
 };
 
+export type Award = {
+  id: string;
+  title: string;
+  issuer: string;
+  year: string;
+};
+
 export type Resume = {
   name: string;
   title: string;
@@ -35,6 +42,7 @@ export type Resume = {
   experience: Experience[];
   education: Education[];
   certifications: Certification[];
+  awards: Award[];
 };
 
 export type TemplateId =
@@ -43,17 +51,36 @@ export type TemplateId =
   | "compact"
   | "minimal"
   | "executive"
-  | "technical";
+  | "technical"
+  | "formal";
 export type PaperId = "letter" | "a4";
 export type DensityId = "comfortable" | "compact";
+export type AccentId = "forest" | "ink" | "navy" | "plum" | "clay";
 
-export type SectionKey = "summary" | "skills" | "experience" | "education" | "certifications";
+export type SectionKey =
+  | "summary"
+  | "skills"
+  | "experience"
+  | "education"
+  | "certifications"
+  | "awards";
+
+export const SECTION_KEYS: SectionKey[] = [
+  "summary",
+  "skills",
+  "experience",
+  "education",
+  "certifications",
+  "awards",
+];
 
 export type Design = {
   template: TemplateId;
   paper: PaperId;
   density: DensityId;
+  accent: AccentId;
   visible: Record<SectionKey, boolean>;
+  sectionOrder: SectionKey[];
 };
 
 export type AppState = {

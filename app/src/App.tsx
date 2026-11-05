@@ -74,6 +74,14 @@ function loadState(): AppState {
             year: typeof entry?.year === "string" ? entry.year : "",
           }))
         : [],
+      awards: Array.isArray(source.awards)
+        ? source.awards.map((entry) => ({
+            id: String(entry?.id ?? uid()),
+            title: typeof entry?.title === "string" ? entry.title : "",
+            issuer: typeof entry?.issuer === "string" ? entry.issuer : "",
+            year: typeof entry?.year === "string" ? entry.year : "",
+          }))
+        : [],
     };
 
     const validTemplates = [
@@ -83,10 +91,21 @@ function loadState(): AppState {
       "minimal",
       "executive",
       "technical",
+      "formal",
     ] as const;
     const template = validTemplates.includes(designSource.template)
       ? designSource.template
       : "modern";
+    const validAccents = ["forest", "ink", "navy", "plum", "clay"] as const;
+    const accent = validAccents.includes(designSource.accent) ? designSource.accent : "forest";
+    const validSections = ["summary", "skills", "experience", "education", "certifications", "awards"] as const;
+    const savedOrder = Array.isArray(designSource.sectionOrder) ? designSource.sectionOrder : [];
+    const sectionOrder = [
+      ...savedOrder.filter((key): key is (typeof validSections)[number] =>
+        (validSections as readonly string[]).includes(key),
+      ),
+      ...validSections.filter((key) => !savedOrder.includes(key)),
+    ];
 
     return {
       resume,
@@ -94,13 +113,16 @@ function loadState(): AppState {
         template,
         paper: designSource.paper === "a4" ? "a4" : "letter",
         density: designSource.density === "compact" ? "compact" : "comfortable",
+        accent,
         visible: {
           summary: designSource.visible?.summary !== false,
           skills: designSource.visible?.skills !== false,
           experience: designSource.visible?.experience !== false,
           education: designSource.visible?.education !== false,
           certifications: designSource.visible?.certifications !== false,
+          awards: designSource.visible?.awards !== false,
         },
+        sectionOrder,
       },
       jobDescription:
         typeof parsed.jobDescription === "string" ? parsed.jobDescription : "",

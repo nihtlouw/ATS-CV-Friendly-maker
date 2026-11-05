@@ -1,9 +1,17 @@
-import type { AtsCheck, Design, Keyword, Resume } from "@/types";
+import type { AtsCheck, Design, Keyword, Resume, SectionKey } from "@/types";
 
 export const PAPER_SIZES = {
   letter: { width: 816, height: 1056, label: "US Letter", print: "letter" },
   a4: { width: 794, height: 1123, label: "A4", print: "A4" },
 } as const;
+
+export const ACCENTS: Record<import("@/types").AccentId, { label: string; hex: string }> = {
+  forest: { label: "Forest", hex: "#1b4b39" },
+  ink: { label: "Ink", hex: "#1f2937" },
+  navy: { label: "Navy", hex: "#1e3a5f" },
+  plum: { label: "Plum", hex: "#5b2a4a" },
+  clay: { label: "Clay", hex: "#a64d31" },
+};
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -198,6 +206,7 @@ export function resumeSearchText(resume: Resume): string {
       ]),
       ...resume.education.flatMap((entry) => [entry.degree, entry.school]),
       ...resume.certifications.flatMap((entry) => [entry.name, entry.issuer]),
+      ...(resume.awards ?? []).flatMap((entry) => [entry.title, entry.issuer]),
     ].join(" "),
   );
 }
@@ -425,43 +434,56 @@ export function buildPlainText(resume: Resume, design: Design): string {
     .filter(Boolean)
     .join(" | ");
 
-  const sections: string[] = [];
-  if (design.visible.summary && resume.summary.trim()) {
-    sections.push(`PROFESSIONAL SUMMARY\n${resume.summary.trim()}`);
-  }
-  if (design.visible.skills && resume.skills.length) {
-    sections.push(`CORE SKILLS\n${resume.skills.join(", ")}`);
-  }
-  if (design.visible.experience && resume.experience.length) {
-    const jobs = resume.experience
-      .filter((job) => job.role.trim() || job.company.trim())
-      .map((job) => {
-        const header = [job.role, job.company, job.location, [job.start, job.end].filter(Boolean).join(" – ")]
-          .map((value) => value.trim())
-          .filter(Boolean)
-          .join(" | ");
-        const bullets = job.bullets
-          .map((bullet) => bullet.trim())
-          .filter(Boolean)
-          .map((bullet) => `- ${bullet}`)
-          .join("\n");
-        return [header, bullets].filter(Boolean).join("\n");
-      })
-      .filter(Boolean);
-    if (jobs.length) sections.push(`WORK EXPERIENCE\n${jobs.join("\n\n")}`);
-  }
-  if (design.visible.education && resume.education.length) {
-    const entries = resume.education
-      .map((entry) => [entry.degree, entry.school, entry.location, entry.year].map((v) => v.trim()).filter(Boolean).join(" | "))
-      .filter(Boolean);
-    if (entries.length) sections.push(`EDUCATION\n${entries.join("\n")}`);
-  }
-  if (design.visible.certifications && resume.certifications.length) {
-    const entries = resume.certifications
-      .map((entry) => [entry.name, entry.issuer, entry.year].map((v) => v.trim()).filter(Boolean).join(" | "))
-      .filter(Boolean);
-    if (entries.length) sections.push(`CERTIFICATIONS\n${entries.join("\n")}`);
-  }
+  const builders: Record<SectionKey, () => string | null> = {
+    summary: () =>
+      resume.summary.trim() ? `PROFESSIONAL SUMMARY\n${resume.summary.trim()}` : null,
+    skills: () =>
+      resume.skills.length ? `CORE SKILLS\n${resume.skills.join(", ")}` : null,
+    experience: () => {
+      const jobs = resume.experience
+        .filter((job) => job.role.trim() || job.company.trim())
+        .map((job) => {
+          const header = [job.role, job.company, job.location, [job.start, job.end].filter(Boolean).join(" \u2013 ")]
+            .map((value) => value.trim())
+            .filter(Boolean)
+            .join(" | ");
+          const bullets = job.bullets
+            .map((bullet) => bullet.trim())
+            .filter(Boolean)
+            .map((bullet) => `- ${bullet}`)
+            .join("\n");
+          return [header, bullets].filter(Boolean).join("\n");
+        })
+        .filter(Boolean);
+      return jobs.length ? `WORK EXPERIENCE\n${jobs.join("\n\n")}` : null;
+    },
+    education: () => {
+      const entries = resume.education
+        .map((entry) => [entry.degree, entry.school, entry.location, entry.year].map((v) => v.trim()).filter(Boolean).join(" | "))
+        .filter(Boolean);
+      return entries.length ? `EDUCATION\n${entries.join("\n")}` : null;
+    },
+    certifications: () => {
+      const entries = resume.certifications
+        .map((entry) => [entry.name, entry.issuer, entry.year].map((v) => v.trim()).filter(Boolean).join(" | "))
+        .filter(Boolean);
+      return entries.length ? `CERTIFICATIONS\n${entries.join("\n")}` : null;
+    },
+    awards: () => {
+      const entries = (resume.awards ?? [])
+        .map((entry) => [entry.title, entry.issuer, entry.year].map((v) => v.trim()).filter(Boolean).join(" | "))
+        .filter(Boolean);
+      return entries.length ? `AWARDS\n${entries.join("\n")}` : null;
+    },
+  };
+
+  const order: SectionKey[] = design.sectionOrder?.length
+    ? design.sectionOrder
+    : ["summary", "skills", "experience", "education", "certifications", "awards"];
+  const sections = order
+    .filter((key) => design.visible[key] !== false)
+    .map((key) => builders[key]?.())
+    .filter((section): section is string => Boolean(section));
 
   const header = [resume.name.trim().toUpperCase() || "YOUR NAME", resume.title.trim(), contact]
     .filter(Boolean)

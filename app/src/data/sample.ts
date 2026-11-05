@@ -1,4 +1,5 @@
-import type { AppState, Certification, Education, Experience, Resume } from "@/types";
+import type { AppState, Award, Certification, Education, Experience, Resume } from "@/types";
+import { SECTION_KEYS } from "@/types";
 
 const experience: Experience[] = [
   {
@@ -56,6 +57,21 @@ const certifications: Certification[] = [
   },
 ];
 
+const awards: Award[] = [
+  {
+    id: "award-1",
+    title: "1st Place, National Operations Case Competition",
+    issuer: "Operations Institute of Indonesia",
+    year: "2023",
+  },
+  {
+    id: "award-2",
+    title: "Best Volunteer Coordinator Award",
+    issuer: "Eastside Youth Alliance",
+    year: "2020",
+  },
+];
+
 export const sampleResume: Resume = {
   name: "Amara Okonkwo",
   title: "Operations & Program Coordinator",
@@ -82,6 +98,7 @@ export const sampleResume: Resume = {
   experience,
   education,
   certifications,
+  awards,
 };
 
 export const sampleJobDescription = `Program Coordinator — Community Health
@@ -126,6 +143,7 @@ export const starterResume: Resume = {
   ],
   education: [],
   certifications: [],
+  awards: [],
 };
 
 export const initialState: AppState = {
@@ -134,13 +152,16 @@ export const initialState: AppState = {
     template: "modern",
     paper: "letter",
     density: "comfortable",
+    accent: "forest",
     visible: {
       summary: true,
       skills: true,
       experience: true,
       education: true,
       certifications: true,
+      awards: true,
     },
+    sectionOrder: [...SECTION_KEYS],
   },
   jobDescription: "",
 };
