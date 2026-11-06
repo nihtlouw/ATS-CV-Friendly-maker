@@ -56,6 +56,8 @@ export type TemplateId =
 export type PaperId = "letter" | "a4";
 export type DensityId = "comfortable" | "compact";
 export type AccentId = "forest" | "ink" | "navy" | "plum" | "clay";
+export type HeadingAlignId = "left" | "center";
+export type SkillsStyleId = "comma" | "bullets";
 
 export type SectionKey =
   | "summary"
@@ -79,6 +81,8 @@ export type Design = {
   paper: PaperId;
   density: DensityId;
   accent: AccentId;
+  headingAlign: HeadingAlignId;
+  skillsStyle: SkillsStyleId;
   visible: Record<SectionKey, boolean>;
   sectionOrder: SectionKey[];
 };

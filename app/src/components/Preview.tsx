@@ -225,11 +225,13 @@ function SectionHeading({
   config,
   density,
   accentHex,
+  align = "left",
 }: {
   children: string;
   config: TemplateConfig;
   density: Design["density"];
   accentHex: string;
+  align?: "left" | "center";
 }) {
   return (
     <h2
@@ -240,6 +242,7 @@ function SectionHeading({
         fontWeight: config.headingBold ? 700 : undefined,
         textTransform: config.headingUppercase ? "uppercase" : undefined,
         letterSpacing: config.headingUppercase ? "0.08em" : "0.15em",
+        textAlign: align,
         color: config.headingColor,
         borderBottom: `1px solid ${config.headingRule}`,
         borderLeft: config.headingBar ? `3px solid ${accentHex}` : undefined,
@@ -283,7 +286,12 @@ export function ResumeSheet({
     : ["summary", "skills", "experience", "education", "certifications", "awards"];
 
   const heading = (label: string) => (
-    <SectionHeading config={config} density={design.density} accentHex={accentHex}>
+    <SectionHeading
+      config={config}
+      density={design.density}
+      accentHex={accentHex}
+      align={design.headingAlign}
+    >
       {label}
     </SectionHeading>
   );
@@ -328,9 +336,19 @@ export function ResumeSheet({
       visible.skills && resume.skills.length > 0 ? (
         <section style={{ marginTop: sectionGap }}>
           {heading("Core Skills")}
-          <p className="rs-skill-list" style={{ fontSize: body - 0.2 }}>
-            {resume.skills.join(", ")}
-          </p>
+          {design.skillsStyle === "bullets" ? (
+            <ul className="rs-bullets" style={{ marginTop: 0, fontSize: body - 0.2 }}>
+              {resume.skills.map((skill, index) => (
+                <li key={skill} style={{ marginTop: index === 0 ? 0 : bulletGap }}>
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rs-skill-list" style={{ fontSize: body - 0.2 }}>
+              {resume.skills.join(", ")}
+            </p>
+          )}
         </section>
       ) : null,
     experience:
