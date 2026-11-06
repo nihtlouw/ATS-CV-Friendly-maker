@@ -95,6 +95,13 @@ export const sampleResume: Resume = {
     "Vendor Management",
     "Cross-functional Collaboration",
   ],
+  softSkills: [
+    "Stakeholder Communication",
+    "Problem Solving",
+    "Time Management",
+    "Collaboration",
+    "Adaptability",
+  ],
   experience,
   education,
   certifications,
@@ -144,6 +151,7 @@ export const starterResume: Resume = {
   education: [],
   certifications: [],
   awards: [],
+  softSkills: [],
 };
 
 export const initialState: AppState = {
@@ -159,6 +167,7 @@ export const initialState: AppState = {
     visible: {
       summary: true,
       skills: true,
+      softSkills: true,
       experience: true,
       education: true,
       certifications: true,
@@ -189,6 +198,9 @@ Operations and program coordinator with 6+ years of experience supporting fast-g
 
 CORE SKILLS
 Program Coordination, Operations Management, Project Scheduling, Stakeholder Communication, Excel & Google Sheets, Data Reporting, Process Improvement, Event Logistics, Budget Tracking, Salesforce CRM, Vendor Management, Cross-functional Collaboration
+
+SOFT SKILLS
+Stakeholder Communication, Problem Solving, Time Management, Collaboration, Adaptability
 
 WORK EXPERIENCE
 Operations Coordinator | Bayview Community Health | Oakland, CA | Mar 2021 – Present

@@ -287,7 +287,7 @@ export function ResumeSheet({
   const visible = design.visible;
   const order: SectionKey[] = design.sectionOrder?.length
     ? design.sectionOrder
-    : ["summary", "skills", "experience", "education", "certifications", "awards"];
+    : ["summary", "skills", "softSkills", "experience", "education", "certifications", "awards"];
 
   const heading = (label: string) => (
     <SectionHeading
@@ -352,6 +352,25 @@ export function ResumeSheet({
           ) : (
             <p className="rs-skill-list" style={{ fontSize: body - 0.2 }}>
               {resume.skills.join(", ")}
+            </p>
+          )}
+        </section>
+      ) : null,
+    softSkills:
+      visible.softSkills && (resume.softSkills ?? []).length > 0 ? (
+        <section style={{ marginTop: sectionGap }}>
+          {heading("Soft Skills")}
+          {design.skillsStyle === "bullets" ? (
+            <ul className="rs-bullets" style={{ marginTop: 0, fontSize: body - 0.2 }}>
+              {(resume.softSkills ?? []).map((skill, index) => (
+                <li key={skill} style={{ marginTop: index === 0 ? 0 : bulletGap }}>
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rs-skill-list" style={{ fontSize: body - 0.2 }}>
+              {(resume.softSkills ?? []).join(", ")}
             </p>
           )}
         </section>

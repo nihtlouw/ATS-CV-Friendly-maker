@@ -209,6 +209,7 @@ export function resumeSearchText(resume: Resume): string {
       resume.title,
       resume.summary,
       resume.skills.join(", "),
+      ...(resume.softSkills ?? []),
       ...resume.experience.flatMap((entry) => [
         entry.role,
         entry.company,
@@ -450,6 +451,10 @@ export function buildPlainText(resume: Resume, design: Design): string {
       resume.summary.trim() ? `PROFESSIONAL SUMMARY\n${stripInlineMarkers(resume.summary.trim())}` : null,
     skills: () =>
       resume.skills.length ? `CORE SKILLS\n${resume.skills.join(", ")}` : null,
+    softSkills: () =>
+      (resume.softSkills ?? []).length
+        ? `SOFT SKILLS\n${stripInlineMarkers((resume.softSkills ?? []).join(", "))}`
+        : null,
     experience: () => {
       const jobs = resume.experience
         .filter((job) => job.role.trim() || job.company.trim())
@@ -490,7 +495,7 @@ export function buildPlainText(resume: Resume, design: Design): string {
 
   const order: SectionKey[] = design.sectionOrder?.length
     ? design.sectionOrder
-    : ["summary", "skills", "experience", "education", "certifications", "awards"];
+    : ["summary", "skills", "softSkills", "experience", "education", "certifications", "awards"];
   const sections = order
     .filter((key) => design.visible[key] !== false)
     .map((key) => builders[key]?.())
