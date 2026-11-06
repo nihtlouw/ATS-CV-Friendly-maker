@@ -98,6 +98,8 @@ function loadState(): AppState {
       : "modern";
     const validAccents = ["forest", "ink", "navy", "plum", "clay"] as const;
     const accent = validAccents.includes(designSource.accent) ? designSource.accent : "forest";
+    const headingAlign = designSource.headingAlign === "center" ? "center" : "left";
+    const skillsStyle = designSource.skillsStyle === "bullets" ? "bullets" : "comma";
     const validSections = ["summary", "skills", "experience", "education", "certifications", "awards"] as const;
     const savedOrder = Array.isArray(designSource.sectionOrder) ? designSource.sectionOrder : [];
     const sectionOrder = [
@@ -114,6 +116,8 @@ function loadState(): AppState {
         paper: designSource.paper === "a4" ? "a4" : "letter",
         density: designSource.density === "compact" ? "compact" : "comfortable",
         accent,
+        headingAlign,
+        skillsStyle,
         visible: {
           summary: designSource.visible?.summary !== false,
           skills: designSource.visible?.skills !== false,

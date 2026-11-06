@@ -153,6 +153,8 @@ export const initialState: AppState = {
     paper: "letter",
     density: "comfortable",
     accent: "forest",
+    headingAlign: "left",
+    skillsStyle: "comma",
     visible: {
       summary: true,
       skills: true,

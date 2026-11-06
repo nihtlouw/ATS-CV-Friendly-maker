@@ -190,6 +190,32 @@ export function DesignPanel({
       </div>
 
       <div>
+        <p className="field-label !mb-1.5">Heading alignment</p>
+        <Segmented
+          label="Heading alignment"
+          value={design.headingAlign}
+          onChange={(value) => setDesign((prev) => ({ ...prev, headingAlign: value }))}
+          options={[
+            { value: "left", label: "Left" },
+            { value: "center", label: "Center" },
+          ]}
+        />
+      </div>
+
+      <div>
+        <p className="field-label !mb-1.5">Skills layout</p>
+        <Segmented
+          label="Skills layout"
+          value={design.skillsStyle}
+          onChange={(value) => setDesign((prev) => ({ ...prev, skillsStyle: value }))}
+          options={[
+            { value: "comma", label: "One line" },
+            { value: "bullets", label: "Bullet list" },
+          ]}
+        />
+      </div>
+
+      <div>
         <p className="field-label !mb-1.5">Paper size</p>
         <Segmented
           label="Paper size"
