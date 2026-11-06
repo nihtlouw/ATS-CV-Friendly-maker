@@ -20,6 +20,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "app/src"),
     },
   },
+  server: {
+    // allow the Arena live-preview host to load the dev server
+    allowedHosts: true,
+  },
   build: {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,

@@ -697,7 +697,9 @@ export function Preview({
     };
   }, [paper.width, paper.height, contentHeight, resume, design]);
 
-  const renderedHeight = Math.max(paper.height, contentHeight);
+  const pageGap = 18;
+  const renderedHeight =
+    pages > 1 ? pages * paper.height + (pages - 1) * pageGap : Math.max(paper.height, contentHeight);
 
   const zoomBy = (delta: number) => {
     const base = manualScale ?? autoScale;
@@ -794,7 +796,6 @@ export function Preview({
             className={cn("transition-[width,height] duration-200", manualScale !== null && "m-auto")}
           >
             <div
-              ref={paperRef}
               className="resume-scale-wrap"
               style={{
                 transform: `scale(${scale})`,
@@ -802,24 +803,42 @@ export function Preview({
                 position: "absolute",
                 top: 0,
                 left: 0,
-                boxShadow:
-                  "0 1px 2px rgba(27,42,35,0.10), 0 18px 40px -18px rgba(27,42,35,0.42)",
               }}
             >
-              <ResumeSheet resume={resume} design={design} />
-              {pages > 1 &&
-                Array.from({ length: pages - 1 }).map((_, index) => (
+              {pages <= 1 ? (
+                <div
+                  ref={paperRef}
+                  style={{
+                    boxShadow:
+                      "0 1px 2px rgba(27,42,35,0.10), 0 18px 40px -18px rgba(27,42,35,0.42)",
+                  }}
+                >
+                  <ResumeSheet resume={resume} design={design} />
+                </div>
+              ) : (
+                Array.from({ length: pages }).map((_, pageIndex) => (
                   <div
-                    key={index}
-                    aria-hidden
-                    className="pointer-events-none absolute left-0 right-0 border-t border-dashed border-clay/40"
-                    style={{ top: paper.height * (index + 1) }}
+                    key={pageIndex}
+                    aria-label={`Page ${pageIndex + 1}`}
+                    style={{
+                      width: paper.width,
+                      height: paper.height,
+                      overflow: "hidden",
+                      background: "#ffffff",
+                      marginBottom: pageIndex < pages - 1 ? 18 : 0,
+                      boxShadow:
+                        "0 1px 2px rgba(27,42,35,0.10), 0 18px 40px -18px rgba(27,42,35,0.42)",
+                    }}
                   >
-                    <span className="absolute right-2 top-1 rounded bg-[#faf4ea] px-1 font-mono text-[8px] uppercase tracking-wide text-clay">
-                      page {index + 2}
-                    </span>
+                    <div
+                      ref={pageIndex === 0 ? paperRef : undefined}
+                      style={{ transform: `translateY(${-pageIndex * paper.height}px)` }}
+                    >
+                      <ResumeSheet resume={resume} design={design} />
+                    </div>
                   </div>
-                ))}
+                ))
+              )}
             </div>
           </div>
         </div>
