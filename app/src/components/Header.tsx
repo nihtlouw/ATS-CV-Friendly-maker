@@ -5,10 +5,14 @@ import {
   FileDown,
   FilePlus2,
   FileText,
+  FolderOpen,
   MoreHorizontal,
   Printer,
   RotateCcw,
+  Save,
+  Trash2,
 } from "lucide-react";
+import type { CvProfile } from "@/types";
 import { cn } from "@/utils/cn";
 
 function MenuItem({
@@ -47,6 +51,10 @@ export function Header({
   onDownloadTxt,
   onUseSample,
   onStartBlank,
+  profiles,
+  onSaveProfile,
+  onLoadProfile,
+  onDeleteProfile,
 }: {
   resumeName: string;
   title: string;
@@ -57,6 +65,10 @@ export function Header({
   onDownloadTxt: () => void;
   onUseSample: () => void;
   onStartBlank: () => void;
+  profiles: CvProfile[];
+  onSaveProfile: () => void;
+  onLoadProfile: (id: string) => void;
+  onDeleteProfile: (id: string) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -183,6 +195,48 @@ export function Header({
                 <MenuItem icon={Copy} label="Copy as plain text" onClick={() => run(onCopy)} />
                 <MenuItem icon={Download} label="Download PDF" onClick={() => run(onPrint)} />
                 <MenuItem icon={FileDown} label="Download .txt" onClick={() => run(onDownloadTxt)} />
+                <div className="my-1 h-px bg-line-soft" />
+                <p className="px-2.5 pb-1 pt-1 font-mono text-[8px] uppercase tracking-[0.16em] text-[#9aa49b]">
+                  Profiles ({profiles.length})
+                </p>
+                <MenuItem icon={Save} label="Save current as profile…" onClick={() => run(onSaveProfile)} />
+                {profiles.length > 0 && (
+                  <div className="max-h-[150px] overflow-y-auto">
+                    {profiles.map((profile) => (
+                      <div
+                        key={profile.id}
+                        className="group flex items-center gap-1 rounded-lg px-2.5 py-1.5 hover:bg-paper-2/70"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => run(() => onLoadProfile(profile.id))}
+                          className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
+                          title={`Load “${profile.name}”`}
+                        >
+                          <FolderOpen className="h-3.5 w-3.5 shrink-0 text-[#849086]" />
+                          <span className="min-w-0">
+                            <span className="block truncate text-[11.5px] text-ink-soft">
+                              {profile.name}
+                            </span>
+                            <span className="block font-mono text-[8px] uppercase tracking-wide text-[#9aa49b]">
+                              {new Date(profile.savedAt).toLocaleDateString()} ·{" "}
+                              {profile.state.resume.title.trim() || "no target role"}
+                            </span>
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onDeleteProfile(profile.id)}
+                          className="rounded p-1 text-[#b0a294] opacity-0 transition hover:bg-[#f8e9e2] hover:text-[#9c4b31] group-hover:opacity-100"
+                          aria-label={`Delete profile ${profile.name}`}
+                          title="Delete profile"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="my-1 h-px bg-line-soft" />
                 <p className="px-2.5 pb-1 pt-1 font-mono text-[8px] uppercase tracking-[0.16em] text-[#9aa49b]">
                   Document
