@@ -494,7 +494,8 @@ export function ContentPanel({
           <EmptyAdd label="Add another role" onClick={addJob} />
           <Tip>
             Lead with a verb, then a result: “Reduced reporting time by 20% by building…” Numbers are
-            only persuasive when they are accurate.
+            only persuasive when they are accurate. Tip: wrap text in **asterisks** for{" "}
+            <strong>bold</strong> or *single asterisks* for <em>italic</em> — both stay ATS-safe.
           </Tip>
         </div>
       </Accordion>

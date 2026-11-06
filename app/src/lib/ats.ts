@@ -22,6 +22,10 @@ export const ACCENTS: Record<import("@/types").AccentId, { label: string; hex: s
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
+/** Removes **bold** / *italic* markers so plain-text export and keyword search stay clean. */
+export const stripInlineMarkers = (value: string) =>
+  value.replace(/\*\*([^*]+)\*\*|__([^_]+)__|\*([^*]+)\*|_([^_]+)_/g, "$1$2$3$4");
+
 export const wordCount = (value: string) =>
   value.trim() ? value.trim().split(/\s+/).length : 0;
 
@@ -199,7 +203,7 @@ const normalise = (value: string) =>
   ` ${value.toLowerCase().replace(/[•·]/g, " ").replace(/\s+/g, " ")} `;
 
 export function resumeSearchText(resume: Resume): string {
-  return normalise(
+  return normalise(stripInlineMarkers(
     [
       resume.name,
       resume.title,
@@ -214,7 +218,7 @@ export function resumeSearchText(resume: Resume): string {
       ...resume.education.flatMap((entry) => [entry.degree, entry.school]),
       ...resume.certifications.flatMap((entry) => [entry.name, entry.issuer]),
       ...(resume.awards ?? []).flatMap((entry) => [entry.title, entry.issuer]),
-    ].join(" "),
+    ].join(" ")),
   );
 }
 
@@ -443,7 +447,7 @@ export function buildPlainText(resume: Resume, design: Design): string {
 
   const builders: Record<SectionKey, () => string | null> = {
     summary: () =>
-      resume.summary.trim() ? `PROFESSIONAL SUMMARY\n${resume.summary.trim()}` : null,
+      resume.summary.trim() ? `PROFESSIONAL SUMMARY\n${stripInlineMarkers(resume.summary.trim())}` : null,
     skills: () =>
       resume.skills.length ? `CORE SKILLS\n${resume.skills.join(", ")}` : null,
     experience: () => {
@@ -455,7 +459,7 @@ export function buildPlainText(resume: Resume, design: Design): string {
             .filter(Boolean)
             .join(" | ");
           const bullets = job.bullets
-            .map((bullet) => bullet.trim())
+            .map((bullet) => stripInlineMarkers(bullet.trim()))
             .filter(Boolean)
             .map((bullet) => `- ${bullet}`)
             .join("\n");

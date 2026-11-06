@@ -4,6 +4,7 @@ import { Check, Eye, FileDown, FileText, Printer } from "lucide-react";
 import type { Design, Resume, SectionKey } from "@/types";
 import { ACCENTS, FONTS, PAPER_SIZES } from "@/lib/ats";
 import { cn } from "@/utils/cn";
+import { InlineText } from "@/components/InlineText";
 
 const SERIF = "Georgia, 'Times New Roman', Times, serif";
 const SANS = "Arial, Helvetica, 'Liberation Sans', sans-serif";
@@ -332,7 +333,7 @@ export function ResumeSheet({
         <section style={{ marginTop: sectionGap }}>
           {heading("Professional Summary")}
           <p className="rs-paragraph" style={{ fontSize: body }}>
-            {resume.summary.trim()}
+            <InlineText text={resume.summary.trim()} />
           </p>
         </section>
       ) : null,
@@ -411,7 +412,7 @@ export function ResumeSheet({
                     >
                       {bullets.map((bullet, bulletIndex) => (
                         <li key={bulletIndex} style={{ marginTop: bulletIndex === 0 ? 0 : bulletGap }}>
-                          {bullet}
+                          <InlineText text={bullet} />
                         </li>
                       ))}
                     </ul>
