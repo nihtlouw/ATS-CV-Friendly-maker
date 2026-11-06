@@ -10,7 +10,7 @@ import {
   Target,
   X,
 } from "lucide-react";
-import type { AppState, Design, JumpTarget, Resume } from "@/types";
+import type { AppState, CvProfile, Design, JumpTarget, Resume } from "@/types";
 import { initialState, sampleResume, starterResume } from "@/data/sample";
 import { analyzeResume, buildPlainText, uid } from "@/lib/ats";
 import { Header } from "@/components/Header";
@@ -20,6 +20,18 @@ import { Preview, PrintSheet } from "@/components/Preview";
 import { cn } from "@/utils/cn";
 
 const STORAGE_KEY = "plainly.cv.v1";
+const PROFILES_KEY = "plainly.cv.profiles.v1";
+
+function loadProfiles(): CvProfile[] {
+  try {
+    const raw = window.localStorage.getItem(PROFILES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((p) => p && p.id && p.state?.resume && p.state?.design) : [];
+  } catch {
+    return [];
+  }
+}
 
 function loadState(): AppState {
   try {
@@ -156,6 +168,7 @@ export default function App() {
   const [jump, setJump] = useState<JumpTarget>(null);
   const [mobileView, setMobileView] = useState<"edit" | "preview">("edit");
   const [confirmBlank, setConfirmBlank] = useState(false);
+  const [profiles, setProfiles] = useState<CvProfile[]>(() => loadProfiles());
   const toastTimer = useRef<number | null>(null);
   const firstRender = useRef(true);
 
@@ -297,6 +310,52 @@ export default function App() {
     setMobileView("edit");
   }, [showToast]);
 
+  const persistProfiles = (next: CvProfile[]) => {
+    setProfiles(next);
+    try {
+      window.localStorage.setItem(PROFILES_KEY, JSON.stringify(next));
+    } catch {
+      /* storage full — ignore */
+    }
+  };
+
+  const handleSaveProfile = useCallback(() => {
+    const suggested = resume.title.trim()
+      ? `${resume.name.trim() || "CV"} — ${resume.title.trim()}`
+      : resume.name.trim() || "Untitled CV";
+    const name = window.prompt("Name this CV profile (e.g. version for a specific job):", suggested);
+    if (!name || !name.trim()) return;
+    const profile: CvProfile = {
+      id: uid(),
+      name: name.trim().slice(0, 80),
+      savedAt: Date.now(),
+      state: { resume, design, jobDescription },
+    };
+    persistProfiles([profile, ...profiles]);
+    showToast(`Profile “${profile.name}” saved in this browser.`);
+  }, [resume, design, jobDescription, profiles, showToast]);
+
+  const handleLoadProfile = useCallback(
+    (id: string) => {
+      const profile = profiles.find((item) => item.id === id);
+      if (!profile) return;
+      setResume(profile.state.resume);
+      setDesign(profile.state.design);
+      setJobDescription(profile.state.jobDescription);
+      showToast(`Loaded profile “${profile.name}”.`);
+    },
+    [profiles, showToast],
+  );
+
+  const handleDeleteProfile = useCallback(
+    (id: string) => {
+      const profile = profiles.find((item) => item.id === id);
+      persistProfiles(profiles.filter((item) => item.id !== id));
+      if (profile) showToast(`Deleted profile “${profile.name}”.`);
+    },
+    [profiles, showToast],
+  );
+
   const setResumeSafe: Dispatch<SetStateAction<Resume>> = setResume;
   const setDesignSafe: Dispatch<SetStateAction<Design>> = setDesign;
 
@@ -312,6 +371,10 @@ export default function App() {
         onDownloadTxt={handleDownloadTxt}
         onUseSample={handleUseSample}
         onStartBlank={() => setConfirmBlank(true)}
+        profiles={profiles}
+        onSaveProfile={handleSaveProfile}
+        onLoadProfile={handleLoadProfile}
+        onDeleteProfile={handleDeleteProfile}
       />
 
       <main className="mx-auto max-w-[1640px] px-4 pb-14 sm:px-6 lg:px-8">

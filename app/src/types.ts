@@ -98,6 +98,13 @@ export type AppState = {
   jobDescription: string;
 };
 
+export type CvProfile = {
+  id: string;
+  name: string;
+  savedAt: number;
+  state: AppState;
+};
+
 export type JumpTarget = {
   section: "contact" | SectionKey | "jobmatch" | "design";
   nonce: number;
