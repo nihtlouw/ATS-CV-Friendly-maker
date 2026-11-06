@@ -14,6 +14,7 @@ const templates: { id: TemplateId; name: string; detail: string }[] = [
 const sectionOptions: { key: SectionKey; label: string; description: string }[] = [
   { key: "summary", label: "Professional summary", description: "Your target role and strengths" },
   { key: "skills", label: "Core skills", description: "Keywords and tools" },
+  { key: "softSkills", label: "Soft skills", description: "Communication and teamwork" },
   { key: "experience", label: "Work experience", description: "Roles, dates and achievements" },
   { key: "education", label: "Education", description: "Credential, school and year" },
   { key: "certifications", label: "Certifications", description: "Optional credentials" },

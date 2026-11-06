@@ -44,6 +44,9 @@ function loadState(): AppState {
       skills: Array.isArray(source.skills)
         ? source.skills.filter((skill): skill is string => typeof skill === "string")
         : [],
+      softSkills: Array.isArray(source.softSkills)
+        ? source.softSkills.filter((skill): skill is string => typeof skill === "string")
+        : [],
       experience: Array.isArray(source.experience)
         ? source.experience.map((job) => ({
             id: String(job?.id ?? uid()),
@@ -102,7 +105,7 @@ function loadState(): AppState {
     const skillsStyle = designSource.skillsStyle === "bullets" ? "bullets" : "comma";
     const validFonts = ["arial", "segoe", "calibri", "georgia"] as const;
     const font = validFonts.includes(designSource.font) ? designSource.font : "segoe";
-    const validSections = ["summary", "skills", "experience", "education", "certifications", "awards"] as const;
+    const validSections = ["summary", "skills", "softSkills", "experience", "education", "certifications", "awards"] as const;
     const savedOrder = Array.isArray(designSource.sectionOrder) ? designSource.sectionOrder : [];
     const sectionOrder = [
       ...savedOrder.filter((key): key is (typeof validSections)[number] =>
@@ -124,6 +127,7 @@ function loadState(): AppState {
         visible: {
           summary: designSource.visible?.summary !== false,
           skills: designSource.visible?.skills !== false,
+          softSkills: designSource.visible?.softSkills !== false,
           experience: designSource.visible?.experience !== false,
           education: designSource.visible?.education !== false,
           certifications: designSource.visible?.certifications !== false,

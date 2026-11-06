@@ -39,6 +39,7 @@ export type Resume = {
   linkedin: string;
   summary: string;
   skills: string[];
+  softSkills: string[];
   experience: Experience[];
   education: Education[];
   certifications: Certification[];
@@ -63,6 +64,7 @@ export type FontId = "arial" | "segoe" | "calibri" | "georgia";
 export type SectionKey =
   | "summary"
   | "skills"
+  | "softSkills"
   | "experience"
   | "education"
   | "certifications"
@@ -71,6 +73,7 @@ export type SectionKey =
 export const SECTION_KEYS: SectionKey[] = [
   "summary",
   "skills",
+  "softSkills",
   "experience",
   "education",
   "certifications",

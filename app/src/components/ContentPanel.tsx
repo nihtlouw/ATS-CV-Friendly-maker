@@ -61,6 +61,7 @@ export function ContentPanel({
   onToast: (message: string) => void;
 }) {
   const [skillInput, setSkillInput] = useState("");
+  const [softSkillInput, setSoftSkillInput] = useState("");
 
   const patchResume = (patch: Partial<Resume>) => setResume((prev) => ({ ...prev, ...patch }));
 
@@ -84,6 +85,17 @@ export function ContentPanel({
     }
     patchResume({ skills: [...resume.skills, clean] });
     setSkillInput("");
+  };
+
+  const addSoftSkill = (raw: string) => {
+    const clean = raw.trim().replace(/,$/, "");
+    if (!clean) return;
+    if ((resume.softSkills ?? []).some((skill) => skill.toLowerCase() === clean.toLowerCase())) {
+      onToast(`“${clean}” is already in your soft skills.`);
+      return;
+    }
+    patchResume({ softSkills: [...(resume.softSkills ?? []), clean] });
+    setSoftSkillInput("");
   };
 
   const addJob = () => {
@@ -380,9 +392,53 @@ export function ContentPanel({
               </div>
             </div>
           )}
+          <div>
+            <p className="microlabel mb-1.5 text-[8.5px]">
+              Soft skills ({(resume.softSkills ?? []).length}) — communication, teamwork, etc.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {(resume.softSkills ?? []).map((skill) => (
+                <Chip
+                  key={skill}
+                  onRemove={() =>
+                    patchResume({
+                      softSkills: (resume.softSkills ?? []).filter((item) => item !== skill),
+                    })
+                  }
+                >
+                  {skill}
+                </Chip>
+              ))}
+              {(resume.softSkills ?? []).length === 0 && (
+                <p className="text-[11.5px] italic text-[#98a298]">No soft skills added yet.</p>
+              )}
+            </div>
+            <form
+              className="mt-1.5 flex gap-1.5"
+              onSubmit={(event) => {
+                event.preventDefault();
+                addSoftSkill(softSkillInput);
+              }}
+            >
+              <input
+                className="field"
+                value={softSkillInput}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value.endsWith(",")) addSoftSkill(value);
+                  else setSoftSkillInput(value);
+                }}
+                placeholder="Add a soft skill and press Enter"
+                aria-label="Add a soft skill"
+              />
+              <button type="submit" className="btn-primary shrink-0 !px-3" aria-label="Add soft skill">
+                <Plus className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
           <Tip>
-            Mirror the exact tools and skills in the posting where they are true. Lists of soft traits
-            (“passionate”, “dynamic”) do little for keyword matching.
+            Mirror the exact tools and skills in the posting where they are true. Hard skills drive
+            keyword matching; keep soft skills to 3–6 honest ones.
           </Tip>
         </div>
       </Accordion>
