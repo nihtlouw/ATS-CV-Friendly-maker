@@ -155,6 +155,7 @@ export const initialState: AppState = {
     accent: "forest",
     headingAlign: "left",
     skillsStyle: "comma",
+    font: "segoe",
     visible: {
       summary: true,
       skills: true,

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Check, Eye, FileDown, FileText, Printer } from "lucide-react";
 import type { Design, Resume, SectionKey } from "@/types";
-import { ACCENTS, PAPER_SIZES } from "@/lib/ats";
+import { ACCENTS, FONTS, PAPER_SIZES } from "@/lib/ats";
 import { cn } from "@/utils/cn";
 
 const SERIF = "Georgia, 'Times New Roman', Times, serif";
@@ -226,18 +226,20 @@ function SectionHeading({
   density,
   accentHex,
   align = "left",
+  fontStack = SANS,
 }: {
   children: string;
   config: TemplateConfig;
   density: Design["density"];
   accentHex: string;
   align?: "left" | "center";
+  fontStack?: string;
 }) {
   return (
     <h2
       className="rs-section-title"
       style={{
-        fontFamily: config.font,
+        fontFamily: fontStack,
         fontSize: config.sectionSize,
         fontWeight: config.headingBold ? 700 : undefined,
         textTransform: config.headingUppercase ? "uppercase" : undefined,
@@ -269,6 +271,7 @@ export function ResumeSheet({
   const config = templateConfig[design.template];
   const compact = design.density === "compact";
   const accentHex = ACCENTS[design.accent]?.hex ?? config.accent;
+  const fontStack = FONTS[design.font]?.stack ?? SANS;
   const pad = compact ? config.padCompact : config.padComfortable;
   const densityTrim = compact ? config.densityTrim : 0;
   const body = config.bodySize - densityTrim;
@@ -291,6 +294,7 @@ export function ResumeSheet({
       density={design.density}
       accentHex={accentHex}
       align={design.headingAlign}
+      fontStack={fontStack}
     >
       {label}
     </SectionHeading>
@@ -301,7 +305,7 @@ export function ResumeSheet({
       <p
         className="rs-contact"
         style={{
-          fontFamily: config.font,
+          fontFamily: fontStack,
           fontSize: config.contactSize,
           marginTop: compact ? 6 : 8,
           display: "flex",
@@ -531,7 +535,7 @@ export function ResumeSheet({
         width: paper.width,
         minHeight: paper.height,
         padding: pad,
-        fontFamily: config.font,
+        fontFamily: fontStack,
         fontSize: body,
         flexShrink: 0,
       }}
@@ -546,7 +550,7 @@ export function ResumeSheet({
         <h1
           className="rs-name"
           style={{
-            fontFamily: config.nameserif ? SERIF : SANS,
+            fontFamily: config.nameserif ? SERIF : fontStack,
             fontSize: config.nameSize,
             fontWeight: config.nameWeight,
             letterSpacing: config.nameTracking,

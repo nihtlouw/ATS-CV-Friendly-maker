@@ -100,6 +100,8 @@ function loadState(): AppState {
     const accent = validAccents.includes(designSource.accent) ? designSource.accent : "forest";
     const headingAlign = designSource.headingAlign === "center" ? "center" : "left";
     const skillsStyle = designSource.skillsStyle === "bullets" ? "bullets" : "comma";
+    const validFonts = ["arial", "segoe", "calibri", "georgia"] as const;
+    const font = validFonts.includes(designSource.font) ? designSource.font : "segoe";
     const validSections = ["summary", "skills", "experience", "education", "certifications", "awards"] as const;
     const savedOrder = Array.isArray(designSource.sectionOrder) ? designSource.sectionOrder : [];
     const sectionOrder = [
@@ -118,6 +120,7 @@ function loadState(): AppState {
         accent,
         headingAlign,
         skillsStyle,
+        font,
         visible: {
           summary: designSource.visible?.summary !== false,
           skills: designSource.visible?.skills !== false,

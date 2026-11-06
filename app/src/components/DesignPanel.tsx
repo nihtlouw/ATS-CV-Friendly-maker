@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { AlignJustify, ArrowDown, ArrowUp, Check, FileText, Rows3, ShieldCheck } from "lucide-react";
 import type { Design, SectionKey, TemplateId } from "@/types";
-import { ACCENTS } from "@/lib/ats";
+import { ACCENTS, FONTS } from "@/lib/ats";
 import { Segmented, Switch } from "@/components/ui";
 import { cn } from "@/utils/cn";
 
@@ -186,6 +186,19 @@ export function DesignPanel({
             { value: "comfortable", label: "Comfortable", icon: <Rows3 className="h-3 w-3" /> },
             { value: "compact", label: "Compact", icon: <AlignJustify className="h-3 w-3" /> },
           ]}
+        />
+      </div>
+
+      <div>
+        <p className="field-label !mb-1.5">Font</p>
+        <Segmented
+          label="Font"
+          value={design.font}
+          onChange={(value) => setDesign((prev) => ({ ...prev, font: value }))}
+          options={(Object.keys(FONTS) as (keyof typeof FONTS)[]).map((key) => ({
+            value: key,
+            label: FONTS[key].label,
+          }))}
         />
       </div>
 

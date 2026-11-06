@@ -5,6 +5,13 @@ export const PAPER_SIZES = {
   a4: { width: 794, height: 1123, label: "A4", print: "A4" },
 } as const;
 
+export const FONTS: Record<import("@/types").FontId, { label: string; stack: string }> = {
+  arial: { label: "Arial", stack: "Arial, Helvetica, 'Liberation Sans', sans-serif" },
+  segoe: { label: "Segoe UI", stack: "'Segoe UI', 'Helvetica Neue', Arial, sans-serif" },
+  calibri: { label: "Calibri", stack: "Calibri, Carlito, 'Segoe UI', Arial, sans-serif" },
+  georgia: { label: "Georgia", stack: "Georgia, 'Times New Roman', Times, serif" },
+};
+
 export const ACCENTS: Record<import("@/types").AccentId, { label: string; hex: string }> = {
   forest: { label: "Forest", hex: "#1b4b39" },
   ink: { label: "Ink", hex: "#1f2937" },
