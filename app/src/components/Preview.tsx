@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { Check, Eye, FileDown, FileText, Printer } from "lucide-react";
+import { Check, Eye, FileDown, FileText, Maximize, Minus, Plus, Printer } from "lucide-react";
 import type { Design, Resume, SectionKey } from "@/types";
 import { ACCENTS, FONTS, PAPER_SIZES } from "@/lib/ats";
 import { cn } from "@/utils/cn";
@@ -651,7 +651,9 @@ export function Preview({
   const paper = PAPER_SIZES[design.paper];
   const stageRef = useRef<HTMLDivElement | null>(null);
   const paperRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(0.62);
+  const [autoScale, setAutoScale] = useState(0.62);
+  const [manualScale, setManualScale] = useState<number | null>(null);
+  const scale = manualScale ?? autoScale;
   const [contentHeight, setContentHeight] = useState<number>(paper.height);
   const [pages, setPages] = useState(1);
 
@@ -673,7 +675,7 @@ export function Preview({
         availableHeight / Math.max(paper.height, contentHeight),
         1,
       );
-      setScale(Math.max(0.22, Number(next.toFixed(4))));
+      setAutoScale(Math.max(0.22, Number(next.toFixed(4))));
     };
 
     const measureSheet = () => {
@@ -697,6 +699,12 @@ export function Preview({
 
   const renderedHeight = Math.max(paper.height, contentHeight);
 
+  const zoomBy = (delta: number) => {
+    const base = manualScale ?? autoScale;
+    setManualScale(Math.min(2, Math.max(0.22, Number((base + delta).toFixed(4)))));
+  };
+  const zoomFit = () => setManualScale(null);
+
   return (
     <aside className="min-w-0 lg:sticky lg:top-[80px]">
       <div className="no-print flex h-[520px] flex-col overflow-hidden rounded-2xl border border-line bg-paper-2/60 shadow-card sm:h-[600px] lg:h-[calc(100vh-100px)] lg:min-h-[560px]">
@@ -707,9 +715,41 @@ export function Preview({
               Live preview
             </span>
             <span className="hidden h-1 w-1 rounded-full bg-[#b9c2b8] sm:block" />
-            <span className="hidden font-mono text-[9.5px] text-muted sm:block">
-              {Math.round(scale * 100)}%
-            </span>
+            <div className="hidden items-center gap-0.5 sm:flex" role="group" aria-label="Zoom preview">
+              <button
+                type="button"
+                onClick={() => zoomBy(-0.1)}
+                className="icon-btn !h-5 !w-5"
+                aria-label="Zoom out"
+                title="Zoom out"
+              >
+                <Minus className="h-2.5 w-2.5" />
+              </button>
+              <span className="w-9 text-center font-mono text-[9.5px] tabular-nums text-muted">
+                {Math.round(scale * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => zoomBy(0.1)}
+                className="icon-btn !h-5 !w-5"
+                aria-label="Zoom in"
+                title="Zoom in"
+              >
+                <Plus className="h-2.5 w-2.5" />
+              </button>
+              <button
+                type="button"
+                onClick={zoomFit}
+                className={cn(
+                  "icon-btn !h-5 !w-5",
+                  manualScale === null && "bg-forest/[0.08] text-forest",
+                )}
+                aria-label="Fit to window"
+                title="Fit to window"
+              >
+                <Maximize className="h-2.5 w-2.5" />
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-1">
             <span
@@ -744,14 +784,14 @@ export function Preview({
           </div>
         </div>
 
-        <div ref={stageRef} className="preview-stage relative flex flex-1 items-center justify-center overflow-hidden p-4">
+        <div ref={stageRef} className={cn("preview-stage relative flex flex-1 p-4", manualScale === null ? "items-center justify-center overflow-hidden" : "overflow-auto")}>
           <div
             style={{
               width: paper.width * scale,
               height: renderedHeight * scale,
               position: "relative",
             }}
-            className="transition-[width,height] duration-200"
+            className={cn("transition-[width,height] duration-200", manualScale !== null && "m-auto")}
           >
             <div
               ref={paperRef}
