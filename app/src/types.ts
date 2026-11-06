@@ -58,6 +58,7 @@ export type DensityId = "comfortable" | "compact";
 export type AccentId = "forest" | "ink" | "navy" | "plum" | "clay";
 export type HeadingAlignId = "left" | "center";
 export type SkillsStyleId = "comma" | "bullets";
+export type FontId = "arial" | "segoe" | "calibri" | "georgia";
 
 export type SectionKey =
   | "summary"
@@ -83,6 +84,7 @@ export type Design = {
   accent: AccentId;
   headingAlign: HeadingAlignId;
   skillsStyle: SkillsStyleId;
+  font: FontId;
   visible: Record<SectionKey, boolean>;
   sectionOrder: SectionKey[];
 };
