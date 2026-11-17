@@ -86,7 +86,7 @@ export function Switch({
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div>
         <span className="text-[12.5px] font-medium text-ink">{label}</span>
-        {description && <p className="mt-0.5 text-[11px] leading-4 text-muted">{description}</p>}
+        {description && <p className="mt-0.5 text-[12px] leading-4 text-muted">{description}</p>}
       </div>
       <button
         type="button"
@@ -95,14 +95,14 @@ export function Switch({
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative h-[22px] w-[38px] shrink-0 rounded-full border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest",
+          "relative h-[26px] w-[42px] shrink-0 rounded-full border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest",
           checked ? "border-forest bg-forest" : "border-line bg-paper-2",
         )}
       >
         <span
           className={cn(
-            "absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white shadow-sm transition-all",
-            checked ? "left-[18px]" : "left-[2px]",
+            "absolute top-[4px] h-[16px] w-[16px] rounded-full bg-white shadow-sm transition-all",
+            checked ? "left-[20px]" : "left-[4px]",
           )}
         />
       </button>
@@ -134,7 +134,7 @@ export function Segmented<T extends string>({
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11.5px] font-medium transition",
+            "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition",
             value === option.value
               ? "bg-cream text-ink shadow-sm ring-1 ring-line"
               : "text-muted hover:text-ink",
@@ -205,7 +205,6 @@ export function ScoreRing({
 }
 
 export function Accordion({
-  number,
   title,
   meta,
   complete,
@@ -229,17 +228,16 @@ export function Accordion({
         aria-expanded={open}
         className="group flex w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-paper/40 sm:px-5"
       >
-        <span className="font-mono text-[10px] tabular-nums text-[#a6afa5]">{number}</span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-ink">{title}</span>
+            <span className="text-sm font-semibold text-ink">{title}</span>
             {complete && (
               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-forest/10">
                 <Check className="h-2.5 w-2.5 text-forest" strokeWidth={3} aria-label="Complete" />
               </span>
             )}
           </span>
-          <span className="mt-0.5 block truncate text-[11px] text-muted">{meta}</span>
+          <span className="mt-1 block truncate text-xs text-muted">{meta}</span>
         </span>
         <ChevronDown
           className={cn(
@@ -279,7 +277,7 @@ export function Chip({
     <span
       title={title}
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-md border py-1 pl-2 pr-1.5 text-[11px] font-medium leading-4 transition",
+        "inline-flex max-w-full items-center gap-1.5 rounded-md border py-1 pl-2 pr-1.5 text-[12px] font-medium leading-4 transition",
         styles[variant],
       )}
     >
@@ -295,7 +293,7 @@ export function Chip({
           type="button"
           onClick={onRemove}
           aria-label={`Remove ${typeof children === "string" ? children : "item"}`}
-          className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[#93a096] transition hover:bg-ink/10 hover:text-ink"
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#93a096] transition hover:bg-ink/10 hover:text-ink"
         >
           <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
             <path d="M3 3l6 6M9 3l-6 6" />

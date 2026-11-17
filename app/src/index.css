@@ -1,19 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@300..700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-paper: #f4f1e8;
-  --color-paper-2: #ece7da;
-  --color-cream: #fbf9f3;
+  --color-paper: #f7f8f7;
+  --color-paper-2: #eef0ee;
+  --color-cream: #ffffff;
   --color-ink: #1b2a23;
   --color-ink-soft: #3c4c43;
   --color-muted: #6d7a71;
-  --color-line: #ded8c9;
-  --color-line-soft: #e9e4d8;
+  --color-line: #dde3de;
+  --color-line-soft: #edf0ed;
   --color-forest: #1b4b39;
   --color-forest-2: #2a6350;
   --color-clay: #c05f39;
@@ -31,11 +30,6 @@ html {
 body {
   margin: 0;
   background-color: var(--color-paper);
-  background-image:
-    radial-gradient(1100px 460px at 82% -12%, rgba(223, 236, 171, 0.32), transparent 70%),
-    radial-gradient(900px 420px at -5% 0%, rgba(192, 95, 57, 0.055), transparent 65%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -83,7 +77,7 @@ button:disabled {
 
 @layer components {
   .microlabel {
-    @apply font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted;
+    @apply text-xs font-medium text-muted;
   }
 
   .field {
@@ -94,11 +88,11 @@ button:disabled {
   }
 
   .field-label {
-    @apply mb-1.5 block font-mono text-[9.5px] font-medium uppercase tracking-[0.13em] text-muted;
+    @apply mb-1.5 block text-xs font-medium text-ink-soft;
   }
 
   .icon-btn {
-    @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest;
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest;
   }
 
   .btn-primary {
@@ -114,13 +108,17 @@ button:disabled {
   }
 }
 
-/* Dotted paper-stage backdrop */
+/* Keep the workspace quiet; document content supplies the hierarchy. */
 .preview-stage {
-  background-color: #e9e4d7;
-  background-image: radial-gradient(rgba(91, 104, 94, 0.22) 0.7px, transparent 0.7px);
-  background-size: 16px 16px;
-  background-position: 8px 8px;
+  background: #eef0ee;
+  overscroll-behavior: contain;
 }
+
+:where(button, a, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-forest);
+  outline-offset: 3px;
+}
+button:disabled { opacity: 0.4; }
 
 .paper-grain {
   position: absolute;
@@ -323,5 +321,14 @@ button:disabled {
 
   .no-print {
     display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

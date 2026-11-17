@@ -1,68 +1,28 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Copy,
-  Download,
-  FileDown,
-  FilePlus2,
-  FileText,
-  FolderOpen,
-  MoreHorizontal,
-  Printer,
-  RotateCcw,
-  Save,
-  Trash2,
-} from "lucide-react";
+import { Download, FilePlus2, FileText, FolderOpen, MoreHorizontal, RotateCcw, Save, Trash2 } from "lucide-react";
 import type { CvProfile } from "@/types";
 import { cn } from "@/utils/cn";
 
-function MenuItem({
-  icon: Icon,
-  label,
-  onClick,
-  danger,
-}: {
-  icon: typeof Copy;
+function MenuItem({ icon: Icon, label, onClick, danger }: {
+  icon: typeof Save;
   label: string;
   onClick: () => void;
   danger?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[11.5px] transition",
-        danger ? "text-[#9c4b31] hover:bg-[#f8e9e2]" : "text-ink-soft hover:bg-paper-2/70",
-      )}
-    >
-      <Icon className={cn("h-3.5 w-3.5", danger ? "text-[#a75c40]" : "text-[#849086]")} />
-      {label}
+    <button type="button" onClick={onClick}
+      className={cn("flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[13px] transition",
+        danger ? "text-[#9c4b31] hover:bg-[#f8e9e2]" : "text-ink-soft hover:bg-paper")}>
+      <Icon className="h-4 w-4 shrink-0" />{label}
     </button>
   );
 }
 
-export function Header({
-  resumeName,
-  title,
-  score,
-  saveState,
-  onCopy,
-  onPrint,
-  onDownloadTxt,
-  onUseSample,
-  onStartBlank,
-  profiles,
-  onSaveProfile,
-  onLoadProfile,
-  onDeleteProfile,
-}: {
+export function Header({ resumeName, saveState, onPrint, onUseSample, onStartBlank,
+  profiles, onSaveProfile, onLoadProfile, onDeleteProfile }: {
   resumeName: string;
-  title: string;
-  score: number;
-  saveState: "saved" | "saving";
-  onCopy: () => void;
+  saveState: "saved" | "saving" | "error";
   onPrint: () => void;
-  onDownloadTxt: () => void;
   onUseSample: () => void;
   onStartBlank: () => void;
   profiles: CvProfile[];
@@ -72,16 +32,15 @@ export function Header({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
     const onClick = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setMenuOpen(false);
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") { setMenuOpen(false); triggerRef.current?.focus(); }
     };
     document.addEventListener("mousedown", onClick);
     document.addEventListener("keydown", onKey);
@@ -91,170 +50,53 @@ export function Header({
     };
   }, [menuOpen]);
 
-  const run = (action: () => void) => {
-    setMenuOpen(false);
-    action();
-  };
+  const run = (action: () => void) => { setMenuOpen(false); action(); };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1640px] items-center gap-3 px-4 sm:px-6 lg:px-8">
-        <a href="#top" className="flex shrink-0 items-center gap-2.5" aria-label="Plainly home">
-          <span className="relative grid h-8 w-8 place-items-center rounded-[9px] bg-forest shadow-[0_1px_0_rgba(255,255,255,0.25)_inset,0_3px_8px_-2px_rgba(27,75,57,0.45)]">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path
-                d="M6 3.5h8.5L19 8v12.5H6z"
-                stroke="#F7F4EC"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-              />
-              <path d="M14 3.5V8h5" stroke="#F7F4EC" strokeWidth="1.6" strokeLinejoin="round" />
-              <path d="M9.5 12.5h6M9.5 16h4" stroke="#DFECAB" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border-2 border-paper bg-lime" />
-          </span>
-          <span className="leading-none">
-            <span className="block font-display text-[21px] font-semibold tracking-[-0.02em] text-ink">
-              Plainly<span className="text-clay">.</span>
-            </span>
-            <span className="mt-[3px] block font-mono text-[7px] uppercase tracking-[0.24em] text-muted">
-              ATS CV studio
-            </span>
-          </span>
+    <header className="sticky top-0 z-40 border-b border-line bg-white">
+      <div className="mx-auto flex h-[72px] max-w-[1800px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <a href="#top" className="flex shrink-0 items-center gap-2.5 rounded-lg" aria-label="Plainly home">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-forest max-[359px]:hidden text-white"><FileText className="h-[19px] w-[19px]" /></span>
+          <span className="font-display text-[25px] font-semibold tracking-tight text-ink">Plainly<span className="text-forest">.</span></span>
         </a>
-
-        <div className="mx-1 hidden h-7 w-px bg-line lg:block" />
-
-        <div className="hidden min-w-0 items-center gap-2 rounded-lg border border-line bg-cream/60 px-2.5 py-1.5 lg:flex">
-          <FileText className="h-3.5 w-3.5 shrink-0 text-[#8d998f]" />
-          <span className="max-w-[150px] truncate text-[11px] font-medium text-ink">
-            {resumeName.trim() || "Untitled CV"}
+        <div className="hidden h-6 w-px bg-line sm:block" />
+        <span className="hidden min-w-0 truncate text-sm text-ink-soft sm:block">{resumeName.trim() ? `${resumeName.trim()}’s CV` : "Untitled CV"}</span>
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-4">
+          <span role="status" className={cn("hidden items-center gap-2 text-xs sm:flex", saveState === "error" ? "text-[#9c4b31]" : "text-muted")}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", saveState === "error" ? "bg-[#9c4b31]" : saveState === "saved" ? "bg-forest" : "bg-[#ab8346]")} />
+            {saveState === "saved" ? "Saved on this device" : saveState === "error" ? "Not saved" : "Saving…"}
           </span>
-          <span className="text-[10px] text-[#b0b7ae]">·</span>
-          <span className="max-w-[210px] truncate text-[10.5px] text-muted lg:max-w-[260px]">
-            {title.trim() || "Target role"}
-          </span>
-        </div>
-
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <div className="hidden items-center gap-1.5 rounded-full border border-forest/15 bg-forest/[0.055] py-1 pl-2 pr-2.5 sm:flex">
-            <span className="flex h-4 w-4 items-center justify-center rounded-full border border-forest/25 bg-cream">
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full",
-                  score >= 90 ? "bg-forest" : score >= 70 ? "bg-[#c09a4e]" : "bg-clay",
-                )}
-              />
-            </span>
-            <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-forest">
-              ATS
-            </span>
-            <span className="font-mono text-[10px] font-medium tabular-nums text-forest">
-              {score}
-              <span className="text-forest/45">/100</span>
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={onCopy}
-            className="hidden items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11.5px] font-medium text-ink-soft transition hover:bg-cream hover:text-ink xl:flex"
-          >
-            <Copy className="h-3.5 w-3.5 text-[#819085]" />
-            Copy text
+          <button type="button" onClick={onPrint} title="Opens the print dialog. Choose Save as PDF."
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-forest px-3 text-[13px] font-semibold text-white transition hover:bg-forest-2 sm:px-4">
+            <Download className="h-4 w-4" /><span>Save PDF</span>
           </button>
-
-          <button
-            type="button"
-            onClick={onPrint}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-forest px-3 py-2 text-[11.5px] font-semibold text-cream shadow-sm transition hover:bg-forest-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest sm:px-3.5"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Download PDF</span>
-            <span className="sm:hidden">PDF</span>
-          </button>
-
           <div className="relative" ref={menuRef}>
-            <button
-              type="button"
-              onClick={() => setMenuOpen((prev) => !prev)}
-              aria-label="More options"
-              aria-expanded={menuOpen}
-              className={cn(
-                "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition hover:border-ink/20 hover:bg-cream hover:text-ink",
-                menuOpen && "border-ink/20 bg-cream text-ink",
-              )}
-            >
-              <MoreHorizontal className="h-4 w-4" />
+            <button ref={triggerRef} type="button" onClick={() => setMenuOpen((prev) => !prev)} aria-label="CV options" aria-expanded={menuOpen} aria-controls="cv-options"
+              className={cn("icon-btn !h-10 !w-10 border border-line", menuOpen && "bg-paper")}>
+              <MoreHorizontal className="h-5 w-5" />
             </button>
             {menuOpen && (
-              <div className="animate-fade-up absolute right-0 top-full z-50 mt-2 w-[228px] rounded-xl border border-line bg-cream p-1.5 shadow-[0_18px_40px_-12px_rgba(27,42,35,0.35)]">
-                <p className="px-2.5 pb-1 pt-1.5 font-mono text-[8px] uppercase tracking-[0.16em] text-[#9aa49b]">
-                  Export
-                </p>
-                <MenuItem icon={Copy} label="Copy as plain text" onClick={() => run(onCopy)} />
-                <MenuItem icon={Download} label="Download PDF" onClick={() => run(onPrint)} />
-                <MenuItem icon={FileDown} label="Download .txt" onClick={() => run(onDownloadTxt)} />
-                <div className="my-1 h-px bg-line-soft" />
-                <p className="px-2.5 pb-1 pt-1 font-mono text-[8px] uppercase tracking-[0.16em] text-[#9aa49b]">
-                  Profiles ({profiles.length})
-                </p>
-                <MenuItem icon={Save} label="Save current as profile…" onClick={() => run(onSaveProfile)} />
+              <div id="cv-options" className="absolute right-0 top-full z-50 mt-2 w-[280px] max-w-[calc(100vw-32px)] rounded-xl border border-line bg-white p-2 shadow-xl">
+                <p className="px-3 pb-2 pt-2 text-xs font-medium text-muted">Saved versions · {profiles.length}</p>
+                <MenuItem icon={Save} label="Save current version…" onClick={() => run(onSaveProfile)} />
                 {profiles.length > 0 && (
-                  <div className="max-h-[150px] overflow-y-auto">
+                  <div className="max-h-52 overflow-y-auto">
                     {profiles.map((profile) => (
-                      <div
-                        key={profile.id}
-                        className="group flex items-center gap-1 rounded-lg px-2.5 py-1.5 hover:bg-paper-2/70"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => run(() => onLoadProfile(profile.id))}
-                          className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
-                          title={`Load “${profile.name}”`}
-                        >
-                          <FolderOpen className="h-3.5 w-3.5 shrink-0 text-[#849086]" />
-                          <span className="min-w-0">
-                            <span className="block truncate text-[11.5px] text-ink-soft">
-                              {profile.name}
-                            </span>
-                            <span className="block font-mono text-[8px] uppercase tracking-wide text-[#9aa49b]">
-                              {new Date(profile.savedAt).toLocaleDateString()} ·{" "}
-                              {profile.state.resume.title.trim() || "no target role"}
-                            </span>
-                          </span>
+                      <div key={profile.id} className="flex items-center gap-1 rounded-lg pl-3 hover:bg-paper">
+                        <button type="button" onClick={() => run(() => onLoadProfile(profile.id))} className="flex min-h-12 min-w-0 flex-1 items-center gap-3 text-left" title={`Load ${profile.name}`}>
+                          <FolderOpen className="h-4 w-4 shrink-0 text-muted" />
+                          <span className="min-w-0 py-1"><span className="block truncate text-[13px] text-ink">{profile.name}</span>
+                            <span className="block text-xs text-muted">{new Date(profile.savedAt).toLocaleDateString()}</span></span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => onDeleteProfile(profile.id)}
-                          className="rounded p-1 text-[#b0a294] opacity-0 transition hover:bg-[#f8e9e2] hover:text-[#9c4b31] group-hover:opacity-100"
-                          aria-label={`Delete profile ${profile.name}`}
-                          title="Delete profile"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
+                        <button type="button" onClick={() => onDeleteProfile(profile.id)} className="icon-btn hover:!text-[#9c4b31]" aria-label={`Delete version ${profile.name}`}><Trash2 className="h-4 w-4" /></button>
                       </div>
                     ))}
                   </div>
                 )}
-                <div className="my-1 h-px bg-line-soft" />
-                <p className="px-2.5 pb-1 pt-1 font-mono text-[8px] uppercase tracking-[0.16em] text-[#9aa49b]">
-                  Document
-                </p>
-                <MenuItem icon={Printer} label="Print preview" onClick={() => run(onPrint)} />
-                <MenuItem icon={RotateCcw} label="Restore sample CV" onClick={() => run(onUseSample)} />
-                <MenuItem icon={FilePlus2} label="Start from blank" onClick={() => run(onStartBlank)} danger />
-                <div className="mt-1 flex items-center gap-1.5 border-t border-line-soft px-2.5 pb-0.5 pt-2">
-                  <span
-                    className={cn(
-                      "h-1 w-1 rounded-full",
-                      saveState === "saved" ? "bg-forest" : "bg-[#c19a4e]",
-                    )}
-                  />
-                  <span className="text-[9.5px] text-[#8b978d]">
-                    {saveState === "saved" ? "Saved in this browser" : "Saving…"}
-                  </span>
-                </div>
+                <div className="my-2 border-t border-line" />
+                <MenuItem icon={RotateCcw} label="Load example CV" onClick={() => run(onUseSample)} />
+                <MenuItem icon={FilePlus2} label="Start a new CV" onClick={() => run(onStartBlank)} danger />
+                <p className="mx-3 mb-1 mt-3 border-t border-line pt-3 text-xs leading-5 text-muted">CVs stay in this browser. Clearing browser data removes saved versions.</p>
               </div>
             )}
           </div>

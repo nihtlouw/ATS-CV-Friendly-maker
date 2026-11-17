@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { AlignJustify, ArrowDown, ArrowUp, Check, FileText, Rows3, ShieldCheck } from "lucide-react";
+import { AlignJustify, ArrowDown, ArrowUp, Check, FileText, Rows3 } from "lucide-react";
 import type { Design, SectionKey, TemplateId } from "@/types";
 import { ACCENTS, FONTS } from "@/lib/ats";
 import { Segmented, Switch } from "@/components/ui";
@@ -136,7 +136,7 @@ export function DesignPanel({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <p className="field-label !mb-0">Template</p>
-          <span className="font-mono text-[8.5px] uppercase tracking-wide text-[#8b978d]">
+          <span className="font-mono text-[12px] uppercase tracking-wide text-[#8b978d]">
             Typography only
           </span>
         </div>
@@ -158,7 +158,7 @@ export function DesignPanel({
               >
                 <MiniSheet template={template.id} active={active} />
                 <div className="mt-1.5 flex items-center justify-between gap-1 px-0.5">
-                  <span className="text-[10.5px] font-semibold text-ink">{template.name}</span>
+                  <span className="text-[12px] font-semibold text-ink">{template.name}</span>
                   <span
                     className={cn(
                       "flex h-3.5 w-3.5 items-center justify-center rounded-full border",
@@ -168,7 +168,7 @@ export function DesignPanel({
                     {active && <Check className="h-2 w-2 text-cream" strokeWidth={3.5} />}
                   </span>
                 </div>
-                <span className="block px-0.5 pb-0.5 text-[8.5px] leading-3 text-muted">
+                <span className="block px-0.5 pb-0.5 text-[12px] leading-3 text-muted">
                   {template.detail}
                 </span>
               </button>
@@ -273,6 +273,7 @@ export function DesignPanel({
                 type="button"
                 aria-pressed={active}
                 title={ACCENTS[key].label}
+                aria-label={`${ACCENTS[key].label} accent`}
                 onClick={() => setDesign((prev) => ({ ...prev, accent: key }))}
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-full border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest",
@@ -295,17 +296,17 @@ export function DesignPanel({
             if (!option) return null;
             return (
               <div key={key} className="flex items-center gap-2 px-2.5 py-1.5">
-                <span className="min-w-0 flex-1 truncate text-[11px] text-ink-soft">
+                <span className="min-w-0 flex-1 truncate text-[12px] text-ink-soft">
                   {option.label}
                   {!design.visible[key] && (
-                    <span className="ml-1.5 font-mono text-[8px] uppercase tracking-wide text-[#9aa49b]">
+                    <span className="ml-1.5 font-mono text-[12px] uppercase tracking-wide text-[#9aa49b]">
                       hidden
                     </span>
                   )}
                 </span>
                 <button
                   type="button"
-                  className="icon-btn !h-6 !w-6"
+                  className="icon-btn"
                   aria-label={`Move ${option.label} up`}
                   disabled={index === 0}
                   onClick={() =>
@@ -320,7 +321,7 @@ export function DesignPanel({
                 </button>
                 <button
                   type="button"
-                  className="icon-btn !h-6 !w-6"
+                  className="icon-btn"
                   aria-label={`Move ${option.label} down`}
                   disabled={index === design.sectionOrder.length - 1}
                   onClick={() =>
@@ -339,25 +340,7 @@ export function DesignPanel({
         </div>
       </div>
 
-      <div className="rounded-xl border border-forest/15 bg-lime-soft/50 p-3">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-forest" />
-          <p className="text-[11.5px] font-semibold text-forest">ATS-safe by design</p>
-        </div>
-        <ul className="mt-2 space-y-1.5">
-          {[
-            "One column — no sidebars or text boxes.",
-            "Standard headings ATS software recognises.",
-            "No icons, tables, charts or graphics.",
-            "System fonts and selectable text on export.",
-          ].map((item) => (
-            <li key={item} className="flex items-start gap-1.5 text-[10px] leading-[1.45] text-[#50634f]">
-              <Check className="mt-[1px] h-2.5 w-2.5 shrink-0 text-forest" strokeWidth={3} />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
+
     </div>
   );
 }

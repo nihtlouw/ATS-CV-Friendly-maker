@@ -1,3 +1,6 @@
 node_modules/
 dist/
 *.local
+
+# Local browser checks and screenshots
+.cache/
