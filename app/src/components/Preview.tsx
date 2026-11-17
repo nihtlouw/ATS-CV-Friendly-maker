@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { Check, Eye, FileDown, FileText, Maximize, Minus, Plus, Printer } from "lucide-react";
+import { Maximize, Minus, Plus } from "lucide-react";
 import type { Design, Resume, SectionKey } from "@/types";
 import { ACCENTS, FONTS, PAPER_SIZES } from "@/lib/ats";
 import { cn } from "@/utils/cn";
@@ -637,233 +637,75 @@ export function PrintSheet({ resume, design }: { resume: Resume; design: Design 
   );
 }
 
-export function Preview({
-  resume,
-  design,
-  onPrint,
-  onDownloadTxt,
-}: {
-  resume: Resume;
-  design: Design;
-  onPrint: () => void;
-  onDownloadTxt: () => void;
-}) {
+export function Preview({ resume, design }: { resume: Resume; design: Design }) {
   const paper = PAPER_SIZES[design.paper];
   const stageRef = useRef<HTMLDivElement | null>(null);
   const paperRef = useRef<HTMLDivElement | null>(null);
-  const [autoScale, setAutoScale] = useState(0.62);
+  const [autoScale, setAutoScale] = useState(0.8);
   const [manualScale, setManualScale] = useState<number | null>(null);
   const scale = manualScale ?? autoScale;
   const [contentHeight, setContentHeight] = useState<number>(paper.height);
-  const [pages, setPages] = useState(1);
-
-  useEffect(() => {
-    setContentHeight(paper.height);
-  }, [paper.height]);
+  const pages = Math.max(1, Math.ceil((contentHeight - 12) / paper.height));
+  const pageGap = 24;
+  const renderedHeight = pages * paper.height + (pages - 1) * pageGap;
 
   useEffect(() => {
     const stage = stageRef.current;
     const sheet = paperRef.current;
     if (!stage || !sheet) return;
-
     const measureScale = () => {
-      const availableWidth = stage.clientWidth - 32;
-      const availableHeight = stage.clientHeight - 32;
-      if (availableWidth <= 0 || availableHeight <= 0) return;
-      const next = Math.min(
-        availableWidth / paper.width,
-        availableHeight / Math.max(paper.height, contentHeight),
-        1,
-      );
-      setAutoScale(Math.max(0.22, Number(next.toFixed(4))));
+      const availableWidth = stage.clientWidth - 40;
+      if (availableWidth > 0) setAutoScale(Math.min(1, availableWidth / paper.width));
     };
-
     const measureSheet = () => {
-      const height = sheet.scrollHeight;
-      setContentHeight(height);
-      setPages(Math.max(1, Math.ceil((height - 12) / paper.height)));
+      // Hidden mobile panels have no layout. Keep the last valid measurement.
+      if (sheet.scrollHeight > 0) setContentHeight(sheet.scrollHeight);
     };
-
     measureScale();
     measureSheet();
-
     const stageObserver = new ResizeObserver(measureScale);
     const sheetObserver = new ResizeObserver(measureSheet);
     stageObserver.observe(stage);
     sheetObserver.observe(sheet);
-    return () => {
-      stageObserver.disconnect();
-      sheetObserver.disconnect();
-    };
-  }, [paper.width, paper.height, contentHeight, resume, design]);
+    return () => { stageObserver.disconnect(); sheetObserver.disconnect(); };
+  }, [paper.width, paper.height, resume, design, pages]);
 
-  const pageGap = 18;
-  const renderedHeight =
-    pages > 1 ? pages * paper.height + (pages - 1) * pageGap : Math.max(paper.height, contentHeight);
-
-  const zoomBy = (delta: number) => {
-    const base = manualScale ?? autoScale;
-    setManualScale(Math.min(2, Math.max(0.22, Number((base + delta).toFixed(4)))));
-  };
-  const zoomFit = () => setManualScale(null);
+  const zoomBy = (delta: number) => setManualScale(Math.min(2, Math.max(0.2, Number((scale + delta).toFixed(3)))));
 
   return (
-    <aside className="min-w-0 lg:sticky lg:top-[80px]">
-      <div className="no-print flex h-[520px] flex-col overflow-hidden rounded-2xl border border-line bg-paper-2/60 shadow-card sm:h-[600px] lg:h-[calc(100vh-100px)] lg:min-h-[560px]">
-        <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-line bg-cream/85 px-3.5">
-          <div className="flex items-center gap-2">
-            <Eye className="h-3.5 w-3.5 text-forest" />
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink-soft">
-              Live preview
-            </span>
-            <span className="hidden h-1 w-1 rounded-full bg-[#b9c2b8] sm:block" />
-            <div className="hidden items-center gap-0.5 sm:flex" role="group" aria-label="Zoom preview">
-              <button
-                type="button"
-                onClick={() => zoomBy(-0.1)}
-                className="icon-btn !h-5 !w-5"
-                aria-label="Zoom out"
-                title="Zoom out"
-              >
-                <Minus className="h-2.5 w-2.5" />
-              </button>
-              <span className="w-9 text-center font-mono text-[9.5px] tabular-nums text-muted">
-                {Math.round(scale * 100)}%
-              </span>
-              <button
-                type="button"
-                onClick={() => zoomBy(0.1)}
-                className="icon-btn !h-5 !w-5"
-                aria-label="Zoom in"
-                title="Zoom in"
-              >
-                <Plus className="h-2.5 w-2.5" />
-              </button>
-              <button
-                type="button"
-                onClick={zoomFit}
-                className={cn(
-                  "icon-btn !h-5 !w-5",
-                  manualScale === null && "bg-forest/[0.08] text-forest",
-                )}
-                aria-label="Fit to window"
-                title="Fit to window"
-              >
-                <Maximize className="h-2.5 w-2.5" />
-              </button>
-            </div>
+    <aside aria-label="CV preview" className="min-w-0 lg:sticky lg:top-[96px]">
+      <div className="no-print flex h-[calc(100dvh-180px)] min-h-[420px] flex-col overflow-hidden rounded-xl border border-line bg-white lg:h-[calc(100dvh-120px)]">
+        <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 border-b border-line px-3 sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <h2 className="text-sm font-semibold text-ink">Preview</h2>
+            <span className="hidden text-xs text-muted sm:inline">{paper.label} · {pages} {pages === 1 ? "page" : "pages"}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span
-              className={cn(
-                "mr-1 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide",
-                pages > 1
-                  ? "border-[#dfc7a4] bg-[#f7eddc] text-[#96602c]"
-                  : "border-forest/15 bg-forest/[0.06] text-forest",
-              )}
-            >
-              <FileText className="h-2.5 w-2.5" />
-              {pages} {pages === 1 ? "page" : "pages"}
-            </span>
-            <button
-              type="button"
-              onClick={onDownloadTxt}
-              className="icon-btn"
-              aria-label="Download plain text CV"
-              title="Download plain text (.txt)"
-            >
-              <FileDown className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={onPrint}
-              className="icon-btn"
-              aria-label="Print or save as PDF"
-              title="Print or save as PDF"
-            >
-              <Printer className="h-4 w-4" />
-            </button>
+          <div className="flex shrink-0 items-center gap-1" role="group" aria-label="Preview zoom">
+            <button type="button" onClick={() => zoomBy(-0.1)} disabled={scale <= 0.2} className="icon-btn" aria-label="Zoom out"><Minus className="h-4 w-4" /></button>
+            <span className="w-12 text-center text-xs tabular-nums text-ink-soft" aria-live="polite">{Math.round(scale * 100)}%</span>
+            <button type="button" onClick={() => zoomBy(0.1)} disabled={scale >= 2} className="icon-btn" aria-label="Zoom in"><Plus className="h-4 w-4" /></button>
+            <div className="mx-1 h-4 w-px bg-line" />
+            <button type="button" onClick={() => setManualScale(null)} className={cn("icon-btn", manualScale === null && "bg-paper text-forest")} aria-label="Fit to width" title="Fit to width" aria-pressed={manualScale === null}><Maximize className="h-4 w-4" /></button>
           </div>
         </div>
-
-        <div ref={stageRef} className={cn("preview-stage relative flex flex-1 p-4", manualScale === null ? "items-center justify-center overflow-hidden" : "overflow-auto")}>
-          <div
-            style={{
-              width: paper.width * scale,
-              height: renderedHeight * scale,
-              position: "relative",
-            }}
-            className={cn("transition-[width,height] duration-200", manualScale !== null && "m-auto")}
-          >
-            <div
-              className="resume-scale-wrap"
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: "top left",
-                position: "absolute",
-                top: 0,
-                left: 0,
-              }}
-            >
-              {pages <= 1 ? (
-                <div
-                  ref={paperRef}
-                  style={{
-                    boxShadow:
-                      "0 1px 2px rgba(27,42,35,0.10), 0 18px 40px -18px rgba(27,42,35,0.42)",
-                  }}
-                >
-                  <ResumeSheet resume={resume} design={design} />
-                </div>
-              ) : (
-                Array.from({ length: pages }).map((_, pageIndex) => (
-                  <div
-                    key={pageIndex}
-                    aria-label={`Page ${pageIndex + 1}`}
-                    style={{
-                      width: paper.width,
-                      height: paper.height,
-                      overflow: "hidden",
-                      background: "#ffffff",
-                      marginBottom: pageIndex < pages - 1 ? 18 : 0,
-                      boxShadow:
-                        "0 1px 2px rgba(27,42,35,0.10), 0 18px 40px -18px rgba(27,42,35,0.42)",
-                    }}
-                  >
-                    <div
-                      ref={pageIndex === 0 ? paperRef : undefined}
-                      style={{ transform: `translateY(${-pageIndex * paper.height}px)` }}
-                    >
-                      <ResumeSheet resume={resume} design={design} />
-                    </div>
+        <div ref={stageRef} className="preview-stage min-h-0 flex-1 overflow-auto p-5" tabIndex={0} aria-label="Scrollable CV document">
+          <div className="mx-auto" style={{ width: paper.width * scale, height: renderedHeight * scale, position: "relative" }}>
+            <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", position: "absolute", top: 0, left: 0 }}>
+              {Array.from({ length: pages }).map((_, pageIndex) => (
+                <div key={pageIndex} aria-label={`Page ${pageIndex + 1}`} style={{ width: paper.width, height: paper.height, overflow: "hidden", background: "white", marginBottom: pageIndex < pages - 1 ? pageGap : 0, boxShadow: "0 2px 12px rgba(27,42,35,0.08)" }}>
+                  <div ref={pageIndex === 0 ? paperRef : undefined} style={{ transform: `translateY(${-pageIndex * paper.height}px)` }}>
+                    <ResumeSheet resume={resume} design={design} />
                   </div>
-                ))
-              )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
-
-        <div className="flex h-10 shrink-0 items-center justify-between gap-2 border-t border-line bg-cream/75 px-3.5">
-          <p className="flex min-w-0 items-center gap-1.5 text-[9.5px] text-muted">
-            <Check className="h-3 w-3 shrink-0 text-forest" strokeWidth={2.6} />
-            <span className="truncate">
-              Single column · standard headings · {paper.label}
-            </span>
-          </p>
-          {pages > 1 ? (
-            <span className="shrink-0 font-mono text-[8.5px] uppercase tracking-wide text-clay">
-              trim to 1 page
-            </span>
-          ) : (
-            <span className="shrink-0 font-mono text-[8.5px] uppercase tracking-wide text-[#8b978d]">
-              ATS safe
-            </span>
-          )}
+        <div className="flex min-h-10 shrink-0 items-center justify-between gap-2 border-t border-line px-4 text-xs text-muted">
+          <span>Print dialog → Save as PDF</span>
+          <span>{pages} {pages === 1 ? "page" : "pages"}</span>
         </div>
       </div>
-      <p className="no-print mt-2 px-1 text-center font-mono text-[8px] uppercase leading-4 tracking-[0.1em] text-[#98a298]">
-        PDF export opens your print dialog — choose “Save as PDF”
-      </p>
     </aside>
   );
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import {
-  Copy,
   Lightbulb,
   Plus,
   Sparkles,
@@ -10,17 +9,16 @@ import {
 import type { Award, Certification, Education, Experience, Resume, SectionKey } from "@/types";
 import { countSentences, suggestionPool, uid, wordCount } from "@/lib/ats";
 import { Accordion, Chip, Field, TextArea } from "@/components/ui";
-import { cn } from "@/utils/cn";
 
 type OpenKey = "contact" | SectionKey;
 
 function Tip({ children, icon = "lightbulb" }: { children: ReactNode; icon?: "lightbulb" | "sparkles" }) {
   const Icon = icon === "sparkles" ? Sparkles : Lightbulb;
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-line-soft bg-paper/60 px-2.5 py-2 text-[10.5px] leading-[1.5] text-[#627067]">
-      <Icon className="mt-[1px] h-3 w-3 shrink-0 text-clay" />
-      <p>{children}</p>
-    </div>
+    <details className="rounded-lg text-xs leading-relaxed text-muted">
+      <summary className="min-h-8 cursor-pointer py-1.5 text-forest"><Icon className="mr-1.5 inline h-3.5 w-3.5" />Writing tip</summary>
+      <p className="pb-2 pl-5">{children}</p>
+    </details>
   );
 }
 
@@ -37,7 +35,7 @@ function EmptyAdd({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#cec7b7] bg-paper/30 px-3 py-2.5 text-[11.5px] font-medium text-forest transition hover:border-forest/35 hover:bg-lime-soft/40"
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#cec7b7] bg-paper/30 px-3 py-2.5 text-[12px] font-medium text-forest transition hover:border-forest/35 hover:bg-lime-soft/40"
     >
       <Icon className="h-3.5 w-3.5" />
       {label}
@@ -197,7 +195,7 @@ export function ContentPanel({
         title="Contact details"
         meta={
           contactFilled === 5
-            ? "Name, email, phone, location, LinkedIn"
+            ? "Contact information added"
             : `${contactFilled} of 5 contact details added`
         }
         complete={contactComplete}
@@ -208,6 +206,7 @@ export function ContentPanel({
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <Field
               label="Full name"
+              className="sm:col-span-2"
               value={resume.name}
               onChange={(value) => patchResume({ name: value })}
               placeholder="Amara Okonkwo"
@@ -215,12 +214,14 @@ export function ContentPanel({
             />
             <Field
               label="Target role"
+              className="sm:col-span-2"
               value={resume.title}
               onChange={(value) => patchResume({ title: value })}
               placeholder="Operations & Program Coordinator"
             />
             <Field
               label="Email"
+              className="sm:col-span-2"
               type="email"
               value={resume.email}
               onChange={(value) => patchResume({ email: value })}
@@ -244,6 +245,7 @@ export function ContentPanel({
             />
             <Field
               label="LinkedIn"
+              className="sm:col-span-2"
               value={resume.linkedin}
               onChange={(value) => patchResume({ linkedin: value })}
               placeholder="linkedin.com/in/yourname"
@@ -276,47 +278,10 @@ export function ContentPanel({
             rows={5}
             placeholder="Operations coordinator with 5+ years... Known for... Seeking a..."
           />
-          <div className="flex items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-wide text-[#8b978d]">
-            <span>
-              {resume.summary.trim().length} characters ·{" "}
-              {summarySentences} sentence{summarySentences === 1 ? "" : "s"}
-            </span>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1",
-                summaryComplete ? "text-forest" : "text-[#9a7748]",
-              )}
-            >
-              <span
-                className={cn(
-                  "h-1 w-1 rounded-full",
-                  summaryComplete ? "bg-forest" : "bg-[#b78b52]",
-                )}
-              />
-              {summaryComplete ? "On target" : "Aim for 2–3"}
-            </span>
-          </div>
-          <div className="rounded-lg border border-line-soft bg-cream/70 p-2.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="microlabel text-[8.5px]">Proven formula</span>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 font-mono text-[8.5px] uppercase tracking-wide text-forest hover:underline"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(formula);
-                    onToast("Summary formula copied to clipboard.");
-                  } catch {
-                    onToast("Select the formula text and copy it manually.");
-                  }
-                }}
-              >
-                <Copy className="h-2.5 w-2.5" />
-                Copy
-              </button>
-            </div>
-            <p className="mt-1.5 text-[10.5px] leading-[1.6] text-[#68756c]">{formula}</p>
-          </div>
+          <details className="rounded-lg border border-line p-3 text-xs text-muted">
+            <summary className="cursor-pointer font-medium text-ink-soft">Need help writing a summary?</summary>
+            <p className="mt-2 leading-relaxed">{formula}</p>
+          </details>
           <Tip icon="sparkles">
             Name the role you want, your years of experience, and one strength you can prove with a
             number. Skip “hard-working team player”.
@@ -327,7 +292,7 @@ export function ContentPanel({
       <Accordion
         number="03"
         title="Key skills"
-        meta={`${resume.skills.length} skills · aim for 8–15 hard skills`}
+        meta={`${resume.skills.length} skills`}
         complete={resume.skills.length >= 8}
         open={open === "skills"}
         onToggle={() => setOpen("skills")}
@@ -345,7 +310,7 @@ export function ContentPanel({
               </Chip>
             ))}
             {resume.skills.length === 0 && (
-              <p className="text-[11.5px] italic text-[#98a298]">No skills added yet.</p>
+              <p className="text-[12px] italic text-[#98a298]">No skills added yet.</p>
             )}
           </div>
           <form
@@ -372,8 +337,8 @@ export function ContentPanel({
           </form>
           {suggestions.length > 0 && (
             <div>
-              <p className="microlabel mb-1.5 text-[8.5px]">
-                {jobDescription.trim() ? "Missing from the job post" : "Suggested skills"}
+              <p className="microlabel mb-1.5 text-[12px]">
+                {jobDescription.trim() ? "Suggested from the job post" : "Suggested skills"}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {suggestions.map((suggestion) => (
@@ -393,7 +358,7 @@ export function ContentPanel({
             </div>
           )}
           <div>
-            <p className="microlabel mb-1.5 text-[8.5px]">
+            <p className="microlabel mb-1.5 text-[12px]">
               Soft skills ({(resume.softSkills ?? []).length}) — communication, teamwork, etc.
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -410,7 +375,7 @@ export function ContentPanel({
                 </Chip>
               ))}
               {(resume.softSkills ?? []).length === 0 && (
-                <p className="text-[11.5px] italic text-[#98a298]">No soft skills added yet.</p>
+                <p className="text-[12px] italic text-[#98a298]">No soft skills added yet.</p>
               )}
             </div>
             <form
@@ -458,10 +423,10 @@ export function ContentPanel({
             <div key={job.id} className="rounded-xl border border-line bg-cream/60">
               <div className="flex items-center justify-between gap-2 border-b border-line-soft px-3 py-2">
                 <span className="flex min-w-0 items-center gap-1.5">
-                  <span className="font-mono text-[9px] uppercase tracking-wide text-[#9aa49b]">
+                  <span className="font-mono text-[12px] uppercase tracking-wide text-[#9aa49b]">
                     Role {String(jobIndex + 1).padStart(2, "0")}
                   </span>
-                  <span className="truncate text-[11px] font-medium text-ink-soft">
+                  <span className="truncate text-[12px] font-medium text-ink-soft">
                     {job.role.trim() || "New role"}
                   </span>
                 </span>
@@ -537,7 +502,7 @@ export function ContentPanel({
                   <button
                     type="button"
                     onClick={() => addBullet(job.id)}
-                    className="mt-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10.5px] font-medium text-forest transition hover:bg-forest/[0.06]"
+                    className="mt-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[12px] font-medium text-forest transition hover:bg-forest/[0.06]"
                   >
                     <Plus className="h-3 w-3" />
                     Add achievement
@@ -572,7 +537,7 @@ export function ContentPanel({
           {resume.education.map((entry, index) => (
             <div key={entry.id} className="rounded-xl border border-line bg-cream/60 p-3">
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-mono text-[9px] uppercase tracking-wide text-[#9aa49b]">
+                <span className="font-mono text-[12px] uppercase tracking-wide text-[#9aa49b]">
                   Entry {String(index + 1).padStart(2, "0")}
                 </span>
                 <button
@@ -637,7 +602,7 @@ export function ContentPanel({
           {resume.certifications.map((entry, index) => (
             <div key={entry.id} className="rounded-xl border border-line bg-cream/60 p-3">
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-mono text-[9px] uppercase tracking-wide text-[#9aa49b]">
+                <span className="font-mono text-[12px] uppercase tracking-wide text-[#9aa49b]">
                   Credential {String(index + 1).padStart(2, "0")}
                 </span>
                 <button
@@ -700,7 +665,7 @@ export function ContentPanel({
           {(resume.awards ?? []).map((entry, index) => (
             <div key={entry.id} className="rounded-xl border border-line bg-cream/60 p-3">
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-mono text-[9px] uppercase tracking-wide text-[#9aa49b]">
+                <span className="font-mono text-[12px] uppercase tracking-wide text-[#9aa49b]">
                   Award {String(index + 1).padStart(2, "0")}
                 </span>
                 <button

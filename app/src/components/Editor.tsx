@@ -34,7 +34,7 @@ export function Editor({
   onToast: (message: string) => void;
 }) {
   const [tab, setTab] = useState<Tab>("content");
-  const [open, setOpen] = useState<OpenKey>("summary");
+  const [open, setOpen] = useState<OpenKey>("contact");
 
   useEffect(() => {
     if (!jump) return;
@@ -56,7 +56,7 @@ export function Editor({
     { id: "content", label: "Content", icon: AlignLeft },
     {
       id: "jobmatch",
-      label: "Match",
+      label: "Job match",
       icon: Target,
       badge: jobDescription.trim() && keywords.length ? `${matched}/${keywords.length}` : undefined,
     },
@@ -66,9 +66,9 @@ export function Editor({
   return (
     <div
       id="cv-editor"
-      className="overflow-hidden rounded-2xl border border-line bg-cream shadow-card"
+      className="overflow-hidden rounded-xl border border-line bg-white"
     >
-      <div className="flex items-stretch border-b border-line bg-[#f7f4ec]">
+      <div className="flex items-stretch border-b border-line bg-white">
         {tabs.map((item) => {
           const Icon = item.icon;
           const active = tab === item.id;
@@ -77,10 +77,10 @@ export function Editor({
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              aria-current={active ? "page" : undefined}
+              aria-pressed={active}
               className={cn(
-                "relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-2 py-2.5 text-[11.5px] font-medium transition sm:text-[12px]",
-                active ? "bg-cream text-ink" : "text-muted hover:bg-cream/50 hover:text-ink",
+                "relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-2 py-2.5 text-[12px] font-medium transition sm:text-[12px]",
+                active ? "bg-white text-ink" : "text-muted hover:bg-paper hover:text-ink",
               )}
             >
               <Icon className={cn("h-3.5 w-3.5", active ? "text-forest" : "text-[#93a096]")} />
@@ -88,7 +88,7 @@ export function Editor({
               {item.badge && (
                 <span
                   className={cn(
-                    "ml-0.5 rounded px-1 py-px font-mono text-[8.5px] tabular-nums",
+                    "ml-0.5 rounded px-1 py-px font-mono text-[12px] tabular-nums",
                     active ? "bg-forest/[0.08] text-forest" : "bg-paper-2 text-muted",
                   )}
                 >
@@ -115,7 +115,6 @@ export function Editor({
       )}
       {tab === "jobmatch" && (
         <JobMatchPanel
-          resume={resume}
           jobDescription={jobDescription}
           setJobDescription={setJobDescription}
           keywords={keywords}
